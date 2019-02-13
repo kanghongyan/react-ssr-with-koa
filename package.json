@@ -1,6 +1,6 @@
 {
   "name": "react-ssr-with-koa",
-  "version": "1.0.0-alpha.0",
+  "version": "1.0.0-alpha.0.0.1",
   "description": "react ssr with koa",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -12,7 +12,9 @@
     "app.js",
     "constants.js",
     "context.js",
-    "def.js"
+    "def.js",
+    "src/middleware",
+    "src/router"
   ],
   "peerDependencies": {
     "react": ">=16.4.0",
