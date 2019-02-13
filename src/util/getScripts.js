@@ -1,7 +1,7 @@
 const getBundles = require('react-loadable/webpack').getBundles;
-const getManifest = require('../context').getManifest;
-const getBundleAssets = require('../context').getBundleAssets;
-const staticPath = require('../def').staticPath;
+const getManifest = require('../../context').getManifest;
+const getBundleAssets = require('../../context').getBundleAssets;
+const staticPath = require('../../def').staticPath;
 
 const preLoc = staticPath.js;
 

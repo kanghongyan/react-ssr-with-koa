@@ -35,12 +35,11 @@ function matchRoutes(routes, pathname, /*not public API*/ branch = []) {
 /**
  *
  * @param ctx
- * @param reduxStore
  * @param matchedRoute
  * @param defaultInitialData 直接从html()中传过来的初始数据
  * @return {Promise<void>}
  */
-const getRouteInitialData = async (ctx, reduxStore, matchedRoute, defaultInitialData) => {
+const getRouteInitialData = async (ctx, matchedRoute, defaultInitialData) => {
 
     let _tempRouteComp = [];
     let finalData = {};

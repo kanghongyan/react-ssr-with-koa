@@ -1,10 +1,10 @@
 const Router = require('koa-router');
 const router = new Router();
 
-const config = require('../def');
-const logger = require('../lib/logger');
+const config = require('../../def');
+const logger = require('../../dist/logger');
 
-const Proxy2Server = require('../lib/proxyToServer');
+const Proxy2Server = require('../../dist/proxyToServer/proxyToServer');
 
 
 module.exports = ({

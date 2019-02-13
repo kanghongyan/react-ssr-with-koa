@@ -3,8 +3,9 @@ const { createLogger, format } = require('winston');
 const { combine, timestamp, label, json, printf } = format;
 const path = require('path');
 const fs = require('fs');
-let { logDir } = require('../def');
 require('winston-daily-rotate-file');
+
+let { logDir } = require('../../def');
 
 try {
     if (!fs.existsSync(logDir)) {
@@ -70,30 +71,6 @@ logger.on('error', function (err) {
 
 module.exports = {
     info: logger.info,
-    proxyInfo: (option) => {
-        logger.info(`
-API PROXY -->
-   path: ${option.path}
-   method: ${option.method}
-   query: ${option.query}
-   time: ${option.time}
-   status: ${option.status},
-   response: ${option.response}
-        `)
-    },
-    // errorProxy
-    proxyError: (option) => {
-        // proxy_api
-        logger.error(`
-API PROXY ERROR -->
-   path: ${option.path},
-   method: ${option.method}，
-   query: ${option.query}
-   response: ${option.response},
-   errorCode: ${option.errorCode},
-   errorStack: ${option.errorStack} 
-            `)
-    },
     error: (msg) => {
         logger.error(msg)
     }

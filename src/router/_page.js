@@ -1,5 +1,5 @@
 const Router = require('koa-router');
-const html = require('../html');
+const html = require('../../dist/html');
 
 
 module.exports = (page) => {
@@ -13,7 +13,6 @@ module.exports = (page) => {
             const htmlObj = new html(ctx, page)
                 .init({
                     ssr: true,
-                    browserRouter: true,
                 });
 
             await htmlObj.render().catch((e) => {

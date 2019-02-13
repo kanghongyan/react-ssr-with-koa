@@ -1,5 +1,5 @@
-const getManifest = require('../context').getManifest;
-const staticPath = require('../def').staticPath;
+const getManifest = require('../../context').getManifest;
+const staticPath = require('../../def').staticPath;
 
 
 const getCss = (page, asyncModules) => {

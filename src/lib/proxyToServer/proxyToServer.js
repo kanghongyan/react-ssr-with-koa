@@ -1,8 +1,8 @@
 const httpProxy = require('http-proxy');
 const zlib = require('zlib');
-const logger = require('../lib/logger');
-const errorBody = require('../lib/error').resBody;
-const RES_CODE = require('../lib/error').RES_CODE;
+const errorBody = require('./error').resBody;
+const RES_CODE = require('./error').RES_CODE;
+const logger = require('../logger');
 
 // const agent = _http.Agent({
 //     keepAlive: false,
@@ -11,9 +11,37 @@ const RES_CODE = require('../lib/error').RES_CODE;
 //     keepAliveMsecs: 1000
 // });
 
+
+
 const proxy = httpProxy.createProxyServer({
     ignorePath: true
 });
+
+
+const LOG_FORMAT = {
+    info: (option) => {
+        return `
+API PROXY -->
+   path: ${option.path}
+   method: ${option.method}
+   query: ${option.query}
+   time: ${option.time}
+   status: ${option.status},
+   response: ${option.response}
+        `
+    },
+    error: (option) => {
+        return `
+API PROXY ERROR -->
+   path: ${option.path},
+   method: ${option.method}，
+   query: ${option.query}
+   response: ${option.response},
+   errorCode: ${option.errorCode},
+   errorStack: ${option.errorStack} 
+            `
+    }
+}
 
 
 /**
@@ -32,12 +60,12 @@ const parseToJson = (data, req) => {
         parsedData = errorRes;
 
 
-        logger.proxyError({
+        logger.error(LOG_FORMAT.error({
             path: req.url,
             response: data,
             errorCode: RES_CODE.PTS_PARSEFAIL,
             errorStack: e.stack
-        })
+        }));
     }
 
 
@@ -45,24 +73,25 @@ const parseToJson = (data, req) => {
     if (typeof parsedData !== 'object' || !parsedData) {
         parsedData = errorRes;
 
-        logger.proxyError({
+        logger.error(LOG_FORMAT.error({
             path: req.url,
             response: data,
             errorCode: RES_CODE.PTS_PARSEFAIL,
             errorStack: `JSON.parse(${data})结果不是object`
-        })
+        }))
     }
 
     return parsedData
 
 }
 
+
+
 // todo; 优化
 
 class ProxyToServer {
 
     constructor(req, res) {
-
         this.req = req;
         this.res = res;
     }
@@ -93,22 +122,22 @@ class ProxyToServer {
             } catch (e) {
                 formatData = JSON.stringify(errorBody(RES_CODE.PTS_SEND_TO_CLIENT_ERROR, formatData));
 
-                logger.proxyError({
+                logger.error(LOG_FORMAT.error({
                     ...baseLogData,
                     response: formatData,
                     errorCode: RES_CODE.PTS_SEND_TO_CLIENT_ERROR,
                     errorStack: e.stack
-                });
+                }));
 
             }
 
 
-            logger.proxyInfo({
+            logger.info(LOG_FORMAT.info({
                 ...baseLogData,
                 status: 200,
                 time: new Date() - req._app_proxy_start_time,
                 response: formatData
-            });
+            }));
 
             delete req._app_proxy_start_time;
 
@@ -212,12 +241,12 @@ class ProxyToServer {
         const data = JSON.stringify(errorBody(RES_CODE.PTS_ERROR, e.toString()));
 
 
-        logger.proxyError({
+        logger.error(LOG_FORMAT.error({
             path: req.url,
             response: data,
             errorCode: RES_CODE.PTS_ERROR,
             errorStack: e.stack
-        });
+        }));
 
 
 
@@ -230,6 +259,12 @@ class ProxyToServer {
 
 
 }
+
+
+
+
+
+
 
 // 使用agent,当sockets小于并发时会报错
 // 压测bug Can't set headers after they are sent with bodyParser()

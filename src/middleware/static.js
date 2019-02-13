@@ -1,7 +1,7 @@
 // production环境，手动send
 const serve = require('koa-static');
 const mount = require('koa-mount');
-const root = require('../def').clientBuildPath;
+const root = require('../../def').clientBuildPath;
 const path = require('path');
 
 module.exports = (opts) => {

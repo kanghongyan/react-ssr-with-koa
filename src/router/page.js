@@ -3,7 +3,7 @@ const router = new Router();
 
 const pageRouter = require('./_page');
 
-const pagesMap = require('../def').pagesMap;
+const pagesMap = require('../../def').pagesMap;
 
 
 // page
