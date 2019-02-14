@@ -18,13 +18,15 @@ const getCss = (page, asyncModules) => {
 
         if (!manifest) return  [];
 
+        const preLoc = staticPath.css;
+
         const commonCss = manifest[`vendor.css`] ?
-            [manifest[`vendor.css`]] :
+            [`${preLoc}${manifest[`vendor.css`]}`] :
             [];
 
         return [
             ...commonCss,
-            `${staticPath.css}${manifest[`${page}.css`]}`
+            `${preLoc}${manifest[`${page}.css`]}`
         ]
 
     }

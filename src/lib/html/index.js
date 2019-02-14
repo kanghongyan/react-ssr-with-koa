@@ -192,7 +192,7 @@ class Html {
                 this.option.ssr ? `<script>window.__PRELOADED_STATE__ = ${JSON.stringify(this.__PRELOADED_STATE__).replace(/</g, '\\\u003c')}</script>` : '',
                 {
                     js: scripts.map((s) => `<script type="text/javascript" src="${s}"></script>`).join('\n'),
-                    css: css.map((s) => `<link href="${s}" rel="stylesheet">`)
+                    css: css.map((s) => `<link href="${s}" rel="stylesheet">`).join('\n')
                 }
             )
         } catch (e) {
