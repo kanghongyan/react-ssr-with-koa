@@ -21,4 +21,4 @@ const enhanceApp = ({
 
 
 
-module.exports =  enhanceApp
+module.exports =  enhanceApp;

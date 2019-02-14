@@ -8,7 +8,6 @@ module.exports = (page) => {
     let App = Missing;
 
     try {
-        // clientSrc/pages/${page}/containers
         App = getAppByPage(page).default
     } catch (e) {
 

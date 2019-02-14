@@ -4,15 +4,13 @@ const {
     PROXY_PATH,
     STATIC_SERVER,
     CLIENT_BUILD_PATH,
-    PAGE_PATH,
     LOG_DIR,
     LOG_DIR_DEPLOY
 } = require('./constants');
 
-const pagesMap = require('./dist/util/getPagesMap')(PAGE_PATH);
 const getStaticPath = require('./dist/util/getStaticPath');
 
-const {getCustomDef} = require('./context');
+const {getCustomDef, getSSRConfig} = require('./context');
 
 const cusDef = getCustomDef();
 const staticPath = getStaticPath();
@@ -31,7 +29,7 @@ module.exports = {
     maxMem: '300M',
     clientBuildPath: CLIENT_BUILD_PATH,
     logDir: dev ? LOG_DIR : LOG_DIR_DEPLOY,
-    pagesMap,
+    pagesMap: getSSRConfig().appEntry || [],
 
     // below can config
     // 代理到的server地址

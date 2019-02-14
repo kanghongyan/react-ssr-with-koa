@@ -56,7 +56,8 @@ const getRouteInitialData = async (ctx, matchedRoute, defaultInitialData) => {
             const data = defaultInitialData[compName];
 
             if (data) {
-                comp.defaultProps = data;
+                comp.defaultProps = {};
+                comp.defaultProps['initialData'] = data;
                 finalData[compName] = data
             }
         });
@@ -70,7 +71,7 @@ const getRouteInitialData = async (ctx, matchedRoute, defaultInitialData) => {
         const comp = await getRouteComp(route.component);
         _tempRouteComp.push(comp);
         return comp.getInitialProps
-            ? comp.getInitialProps(ctx, reduxStore, match)
+            ? comp.getInitialProps(ctx, match)
             : Promise.resolve(null)
     });
 
@@ -82,7 +83,8 @@ const getRouteInitialData = async (ctx, matchedRoute, defaultInitialData) => {
         const compName = comp.displayName || comp.name;
         if (compName && initialData[i]) {
             finalData[compName] = next;
-            comp.defaultProps = initialData[i]
+            comp.defaultProps = {};
+            comp.defaultProps['initialData'] = initialData[i]
         }
     }, finalData);
 

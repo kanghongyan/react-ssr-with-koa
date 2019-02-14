@@ -38,27 +38,28 @@ const ReactDomRenderMethod = (() => {
  * const htmlObj = new Html(req, page)
  * .init({
  *     ssr: true/false,// 是否打开服务端渲染
- *     app: App,
- *     routeConfig: []
  * })
+ * // 如果不想在getInitialProps中请求数据，可以直接在这里给组件设置初始数据
+ * {
+ *     pageProps: {}, // 根组件
+       routeProps: {  // 路由组件
+            Home: {   // "Home"路由组件的名字
+                data: xx   // 在server端可以通过props.data拿到xx
+            }
+       }
+ * }
  * .injectInitialData()
- * .injectStore()
  *
  * await htmlObj.render()
- *
- * 如果没用redux
- * htmlObj.render()即可
- *
- * 如果用了redux，需要传入store
- * htmlObj.injectStore(store).render()
  */
 class Html {
 
     constructor(ctx, page) {
         this.page = page;
         this.req = ctx.request;
-        this.option = {};
         this.ctx = ctx;
+
+        this.option = {};
         this.app = null;
         this.routerContext = {};
         this.modules = [];
@@ -74,17 +75,22 @@ class Html {
         };
     }
 
+    /**
+     * 初始化
+     * @param option
+     * {ssr: true|false}
+     *
+     * @return {Html}
+     */
     init(option) {
 
         if (!option.ssr) {
             return this
         }
 
-        option.app = option.app ? option.app.default : null;
-
         let App = null;
         try {
-            App = option.app || getAppForPage(this.page);
+            App = getAppForPage(this.page);
         } catch (e) {
             App = require('./MissingComp');
             logger.error(e.stack)
@@ -145,14 +151,7 @@ class Html {
         let pageMarkup = '';
 
         try {
-
-            // pageMarkup = this._store ?
-            //     this.__getPageMarkupWithStore() :
-            //     this.__getPageMarkup();
-
-            pageMarkup = this.__getPageMarkupWithStore()
-
-
+            pageMarkup = this.__getPageMarkup()
         } catch (e) {
             logger.error(e.stack);
             console.log('generate HTML error')
@@ -160,8 +159,6 @@ class Html {
 
 
         const fullHtml = this.__generateTpl(pageMarkup);
-
-        console.log(this.modules)
 
 
         if (this.routerContext.url) {
@@ -219,7 +216,7 @@ class Html {
         this.__PRELOADED_STATE__.pageProps = this.initialData.pageProps;
 
         // get InitialData from route Component
-        const routeConfig = this.option.routeConfig ? this.option.routeConfig.default : null;
+        const routeConfig = App.routeConfig ? App.routeConfig : null;
         if (routeConfig) {
             const pathname = this.ctx.request.path.replace(`/${this.page}`, '');
             const matchedRoute = matchRoutes(routeConfig, pathname);
@@ -244,12 +241,12 @@ class Html {
     }
 
     /**
-     * 使用redux情况
+     * reactDom.renderToString()
      * ReactDomRenderMethod(App)
      * @return {*}
      * @private
      */
-    __getPageMarkupWithStore() {
+    __getPageMarkup() {
 
         const App = this.app;
 
@@ -261,35 +258,35 @@ class Html {
         );
     }
 
-    /**
-     * 没有redux
-     * ReactDomRenderMethod(App)
-     * @return {*}
-     * @private
-     */
-    __getPageMarkup() {
+    // /**
+    //  * 没有redux
+    //  * ReactDomRenderMethod(App)
+    //  * @return {*}
+    //  * @private
+    //  */
+    // __getPageMarkup() {
+    //
+    //     return ReactDomRenderMethod(
+    //         this.__appWithRouter()
+    //     );
+    // }
 
-        return ReactDomRenderMethod(
-            this.__appWithRouter()
-        );
-    }
 
-
-    __appWithRouter() {
-        const App = this.app;
-
-        return (
-            <Loadable.Capture report={moduleName => this.modules.push(moduleName)}>
-                <StaticRouter
-                    basename={`/${this.page}`}
-                    location={this.req.url}
-                    context={this.routerContext}
-                >
-                    <App/>
-                </StaticRouter>
-            </Loadable.Capture>
-        )
-    }
+    // __appWithRouter() {
+    //     const App = this.app;
+    //
+    //     return (
+    //         <Loadable.Capture report={moduleName => this.modules.push(moduleName)}>
+    //             <StaticRouter
+    //                 basename={`/${this.page}`}
+    //                 location={this.req.url}
+    //                 context={this.routerContext}
+    //             >
+    //                 <App/>
+    //             </StaticRouter>
+    //         </Loadable.Capture>
+    //     )
+    // }
 
 
     // old-render
