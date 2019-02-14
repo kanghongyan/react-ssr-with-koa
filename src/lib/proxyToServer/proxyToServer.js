@@ -167,6 +167,12 @@ class ProxyToServer {
                 // unzip，返回body, headers数据
                 zlib.unzip(body, (err, buffer) => {
 
+                    if (err) {
+                        logger.error(err.stack);
+                        res._app_proxy(errorBody(RES_CODE.PTS_GZIP_PARSED_ERROR, err), send);
+                        return;
+                    }
+
                     const dataString = buffer.toString();
                     const dataObject = parseToJson(dataString, req);
 

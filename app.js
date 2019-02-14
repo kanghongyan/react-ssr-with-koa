@@ -14,8 +14,7 @@ const router = require('./src/router');
 
 const app = new Koa();
 
-const path = require('path');
-
+require('./dist/util/preLoadComp')();
 
 const main = async () => {
 

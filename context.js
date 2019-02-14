@@ -24,5 +24,8 @@ module.exports = {
     getBundleAssets:
         (name = 'react-loadable.json') => {
             return require(path.resolve(`_server/react-loadable.json`))
-        }
+        },
+    getSSRConfig: (name = 'ssr.js') => {
+        return require(path.resolve(`config/${name}`))
+    }
 };
