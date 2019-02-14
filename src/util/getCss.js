@@ -18,7 +18,12 @@ const getCss = (page, asyncModules) => {
 
         if (!manifest) return  [];
 
+        const commonCss = manifest[`vendor.css`] ?
+            [manifest[`vendor.css`]] :
+            [];
+
         return [
+            ...commonCss,
             `${staticPath.css}${manifest[`${page}.css`]}`
         ]
 
