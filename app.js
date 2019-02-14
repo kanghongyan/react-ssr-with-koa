@@ -11,6 +11,7 @@ const Loadable = require('react-loadable');
 const performance = require('./src/middleware/performance');
 const staticRouter = require('./src/middleware/static');
 const router = require('./src/router');
+const logger = require('./dist/logger');
 
 const app = new Koa();
 
@@ -110,39 +111,4 @@ const main = async () => {
 };
 
 module.exports = main;
-/*
 
-// 添加global对象
-// global.document = document;
-// global.window = window;
-// global.navigator = window.navigator;
-
-
-
-
-
-
-const logger = require('./dist/logger');
-
-
-
-
-const main = async () => {
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-};
-
-
-module.exports = main;*/
