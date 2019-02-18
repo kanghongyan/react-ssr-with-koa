@@ -233,7 +233,8 @@ class Html {
             initialData: this.initialData.pageProps,
             basename: this.page,
             location: this.req.url,
-            context: this.routerContext
+            context: this.routerContext,
+            store: this.ctx.reduxStore
         })(App);
         // const EnhancedApp = App;
 

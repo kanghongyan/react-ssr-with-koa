@@ -20,7 +20,7 @@
     "react": ">=16.4.0",
     "react-dom": ">=16.4.0",
     "react-loadable": ">=5.5.0",
-    "koa": "^2.5.2",
+    "koa": ">=2.5.2",
     "react-router-dom": ">=4.3.1"
   },
   "dependencies": {
@@ -29,14 +29,14 @@
     "http-proxy": "^1.17.0",
     "ignore-styles": "^5.0.1",
     "isomorphic-unfetch": "^3.0.0",
-    "koa": "^2.5.2",
+    "jsdom": "9.12.0",
     "koa-bodyparser": "^4.2.1",
     "koa-mount": "^4.0.0",
     "koa-router": "^7.4.0",
     "koa-static": "^5.0.0",
     "lodash": "^4.17.11",
-    "winston": "^3.1.0",
-    "winston-daily-rotate-file": "^3.3.2"
+    "winston": "3.1.0",
+    "winston-daily-rotate-file": "3.3.2"
   },
   "author": "kanghongyan",
   "license": "ISC",

@@ -15,6 +15,11 @@ const logger = require('./dist/logger');
 
 const app = new Koa();
 
+// 添加global对象
+global.document = require('./src/fakeObject/document');
+global.window = require('./src/fakeObject/window');
+global.navigator = window.navigator;
+
 require('./dist/util/preLoadComp')();
 
 const main = async () => {
