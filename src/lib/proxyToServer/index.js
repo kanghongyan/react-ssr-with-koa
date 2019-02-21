@@ -19,23 +19,23 @@ const proxy = httpProxy.createProxyServer({
 
 
 const LOG_FORMAT = {
-    info: (option) => {
+    info: ({req, ...option}) => {
         return `
 API PROXY -->
-   path: ${option.path}
-   method: ${option.method}
-   query: ${option.query}
+   path: ${req.url}
+   method: ${req.method}
+   query: ${req.query || JSON.stringify(req._body)}
    time: ${option.time}
    status: ${option.status},
    response: ${option.response}
         `
     },
-    error: (option) => {
+    error: ({req, ...option}) => {
         return `
 API PROXY ERROR -->
-   path: ${option.path},
-   method: ${option.method}，
-   query: ${option.query}
+   path: ${req.url},
+   method: ${req.method}，
+   query: ${req.query || JSON.stringify(req._body)}
    response: ${option.response},
    errorCode: ${option.errorCode},
    errorStack: ${option.errorStack} 
@@ -61,7 +61,7 @@ const parseToJson = (data, req) => {
 
 
         logger.error(LOG_FORMAT.error({
-            path: req.url,
+            req,
             response: data,
             errorCode: RES_CODE.PTS_PARSEFAIL,
             errorStack: e.stack
@@ -74,7 +74,7 @@ const parseToJson = (data, req) => {
         parsedData = errorRes;
 
         logger.error(LOG_FORMAT.error({
-            path: req.url,
+            req,
             response: data,
             errorCode: RES_CODE.PTS_PARSEFAIL,
             errorStack: `JSON.parse(${data})结果不是object`
@@ -110,11 +110,6 @@ class ProxyToServer {
         const send = (formatData) => {
             setHeaders(proxyRes.headers);
 
-            const baseLogData = {
-                path: req.url,
-                method: req.method,
-                query: req.query || JSON.stringify(req._body),
-            };
 
             try {
                 formatData.__fns = true;
@@ -123,7 +118,7 @@ class ProxyToServer {
                 formatData = JSON.stringify(errorBody(RES_CODE.PTS_SEND_TO_CLIENT_ERROR, formatData));
 
                 logger.error(LOG_FORMAT.error({
-                    ...baseLogData,
+                    req,
                     response: formatData,
                     errorCode: RES_CODE.PTS_SEND_TO_CLIENT_ERROR,
                     errorStack: e.stack
@@ -133,7 +128,7 @@ class ProxyToServer {
 
 
             logger.info(LOG_FORMAT.info({
-                ...baseLogData,
+                req,
                 status: 200,
                 time: new Date() - req._app_proxy_start_time,
                 response: formatData
@@ -169,14 +164,14 @@ class ProxyToServer {
 
                     if (err) {
                         logger.error(err.stack);
-                        res._app_proxy(errorBody(RES_CODE.PTS_GZIP_PARSED_ERROR, err), send);
+                        res.app_proxyRes(errorBody(RES_CODE.PTS_GZIP_PARSED_ERROR, err), send);
                         return;
                     }
 
                     const dataString = buffer.toString();
                     const dataObject = parseToJson(dataString, req);
 
-                    res._app_proxy(dataObject, send);
+                    res.app_proxyRes(dataObject, send);
 
 
                 })
@@ -190,7 +185,7 @@ class ProxyToServer {
                 const dataString = body.toString();
                 const dataObject = parseToJson(dataString, req);
 
-                res._app_proxy(dataObject, send);
+                res.app_proxyRes(dataObject, send);
 
 
             }
@@ -199,6 +194,9 @@ class ProxyToServer {
     }
 
     static proxyToWeb(req, res, other, ctx) {
+
+        const { headers, ...customOption } = other;
+
         proxy.web(req, res,
             {
                 changeOrigin: true,
@@ -206,10 +204,9 @@ class ProxyToServer {
                 headers: {
                     ip: '',
                     'x-origin-ip': ctx.headers['x-forwarded-for'] || ctx.ip,
-                    ...other.headers
+                    ...headers
                 },
-                target: other.target,
-                selfHandleResponse: other.selfHandleResponse
+                ...customOption
             }
         );
     }
@@ -217,25 +214,37 @@ class ProxyToServer {
 
     to (other, ctx) {
 
+        this.res._app_selfHandleResponseApi = true;
         this.req._app_proxy_start_time = new Date();
-        ProxyToServer.proxyToWeb(this.req, this.res, other, ctx)
+
+        ProxyToServer.proxyToWeb(this.req, this.res, other, ctx);
+
+        this.res.on('close', () => {
+            logger.error('Http response closed while proxying')
+        });
+
+        this.res.on('error', (e) => {
+            logger.error(e.stack)
+        });
 
     }
 
     asyncTo(other, ctx) {
         return new Promise((resolve, reject) => {
 
-            ProxyToServer.proxyToWeb(this.req, this.res, other, ctx)
+            this.res._app_selfHandleResponseApi = false;
 
-            ctx.res.on('close', () => {
+            ProxyToServer.proxyToWeb(this.req, this.res, other, ctx);
+
+            this.res.on('close', () => {
                 reject(new Error('Http response closed while proxying'));
             });
 
-            ctx.res.on('error', (e) => {
+            this.res.on('error', (e) => {
                 reject(e/*new Error('Http response error while proxying')*/);
             });
 
-            ctx.res.on('finish', () => {
+            this.res.on('finish', () => {
                 resolve();
             });
 
@@ -248,7 +257,7 @@ class ProxyToServer {
 
 
         logger.error(LOG_FORMAT.error({
-            path: req.url,
+            req,
             response: data,
             errorCode: RES_CODE.PTS_ERROR,
             errorStack: e.stack

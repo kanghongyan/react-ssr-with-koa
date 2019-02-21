@@ -7,6 +7,6 @@ module.exports = {
     SELF_HANDLE_RESPONSE: false,
 
     CLIENT_BUILD_PATH: path.resolve('build'),
-    LOG_DIR: path.resolve('_server/log'),
+    LOG_DIR: path.resolve('log'),
     LOG_DIR_DEPLOY: '/opt/nodejslogs'
 };

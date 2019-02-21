@@ -7,7 +7,7 @@ const preLoadComp = () => {
     const appEntry = ssrConfig.appEntry || {};
 
     Object.keys(appEntry).map((key) => {
-        require(path.resolve(`_server/dist/${key}.generated.js`));
+        require(path.resolve(`build/server/${key}.generated.js`));
     })
 };
 

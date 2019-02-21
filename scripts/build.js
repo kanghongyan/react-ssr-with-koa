@@ -78,7 +78,7 @@ logger.forEach((file) => {
 
 // proxyToServer
 const proxyToServer = [
-    'proxyToServer.js',
+    'index.js',
     'error.js'
 ];
 proxyToServer.forEach((file) => {

@@ -60,56 +60,42 @@ const main = async () => {
 
     await Loadable.preloadAll();
 
-    // custom logic
+    // performance
     app.performance = () => {
-        // performance
         app.use(performance())
-    };
-
-    // proxy api
-    app.proxyApi = (option = {}) => {
-
-        const emptyFun = async () => {};
-
-        const proxyApi = router.api({
-            prefix: option.prefix || 'api',
-            apiProxyBefore: option.apiProxyBefore || emptyFun,
-            apiProxyReceived: option.apiProxyReceived || emptyFun
-        });
-
-        // bodyParser
-        app.use(bodyParser());
-        app.use((ctx, next) => {
-            // 开启了bodyparser
-            // 约定，向req中注入_body for "proxyToServer"
-            ctx.req._body = ctx.request.body;
-            return next();
-        });
-
-        // api router
-        app.use(proxyApi.routes());
-        app.use(proxyApi.allowedMethods());
     };
 
 
     // custom logic
     app.init = ({
-                    useDefaultSSR = false
+                    useDefaultSSR = true,
+                    useDefaultProxy = true
                 }) => {
 
         // favicon
         app.use(router.favicon.routes());
 
-        // todo: better
+        // staticRouter
+        app.use(staticRouter());
+
+        if (useDefaultProxy) {
+            // bodyParser
+            app.use(bodyParser());
+            app.use((ctx, next) => {
+                // 开启了bodyparser
+                // 约定，向req中注入_body for "proxyToServer"
+                ctx.req._body = ctx.request.body;
+                return next();
+            });
+        }
+
         if (useDefaultSSR) {
             // page
             app.use(router.page.routes());
             app.use(router.page.allowedMethods());
         }
+    }
 
-        // staticRouter
-        app.use(staticRouter())
-    };
 
     return app
 

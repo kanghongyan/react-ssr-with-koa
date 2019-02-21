@@ -1,4 +1,3 @@
-const api = require('./api');
 const page = require('./page');
 
 const Router = require('koa-router');
@@ -14,7 +13,6 @@ faviconRouter.get('/favicon.ico', (ctx, next) => {
 
 
 module.exports = {
-    api,
     page,
     favicon: faviconRouter
 };

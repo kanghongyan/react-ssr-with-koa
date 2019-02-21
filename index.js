@@ -2,7 +2,7 @@ const http = require('http');
 
 const start = require('./app');
 const env = require('./def');
-const logger = require('./lib/logger');
+const logger = require('./dist/logger');
 
 
 start().then((app) => {
@@ -23,10 +23,8 @@ start().then((app) => {
 
     app.performance();
 
-    app.proxyApi();
-
     app.init({
-        defaultSSR: true
+        useDefaultSSR: true
     });
 
     app.on("error", (err, ctx) => {//捕获异常记录错误日志

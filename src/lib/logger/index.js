@@ -13,7 +13,7 @@ try {
     }
 } catch(e) {
     console.log(e);
-    logDir = path.resolve('_server/log');
+    logDir = path.resolve('log');
     console.log(`mkdir fail, now logDir is ${logDir}`)
 }
 
@@ -54,7 +54,7 @@ const logger = createLogger({
     format: combine(
         label({ label: 'msg' }),
         timestamp({
-            format: 'YYYY-MM-DD HH:mm:ss'
+            format: 'YYYY-MM-DD HH:mm:ss.SSS'
         }),
         myFormat
     ),
