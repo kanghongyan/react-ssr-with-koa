@@ -1,5 +1,6 @@
 const httpProxy = require('http-proxy');
 const zlib = require('zlib');
+const queryString = require('querystring');
 const errorBody = require('./error').resBody;
 const RES_CODE = require('./error').RES_CODE;
 const logger = require('../logger');
@@ -286,17 +287,29 @@ class ProxyToServer {
 // todo: 暂时未找到根本性原因
 proxy.on('proxyReq', function (proxyReq, req, res, options) {
 
-    // 只考虑application/json情况
-    // 如果是POST  && 有自定义传入的body
-    // 重新buffer
-    if (req.method === 'POST' && req._body) {
-        let bodyData = JSON.stringify(req._body);
-        // incase if content-type is application/x-www-form-urlencoded -> we need to change to application/json
-        proxyReq.setHeader('Content-Type', 'application/json');
+    if (!req._body || !Object.keys(req._body).length) {
+        return;
+    }
+
+    if (req.method !== 'POST') {
+        return
+    }
+
+    const contentType = proxyReq.getHeader('Content-Type');
+    let bodyData;
+
+    if (contentType === 'application/json') {
+        bodyData = JSON.stringify(req.body);
+    }
+
+    if (contentType === 'application/x-www-form-urlencoded') {
+        bodyData = queryString.stringify(req.body);
+    }
+
+    if (bodyData) {
         proxyReq.setHeader('Content-Length', Buffer.byteLength(bodyData));
-        // stream the content
         proxyReq.write(bodyData);
-        proxyReq.end()
+        // proxyReq.end()
     }
 });
 proxy.on('proxyRes', function (proxyRes, req, res) {
