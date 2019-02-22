@@ -1,6 +1,7 @@
 const httpProxy = require('http-proxy');
 const zlib = require('zlib');
 const queryString = require('querystring');
+const contentType = require('content-type');
 const errorBody = require('./error').resBody;
 const RES_CODE = require('./error').RES_CODE;
 const logger = require('../logger');
@@ -297,14 +298,21 @@ proxy.on('proxyReq', function (proxyReq, req, res, options) {
         return
     }
 
-    const contentType = proxyReq.getHeader('Content-Type');
+    let _contType;
     let bodyData;
 
-    if (contentType === 'application/json') {
+    try {
+        _contType = contentType.parse(proxyReq).type
+    } catch (e) {
+        _contType = 'application/json';
+        logger.error(e.errorStack)
+    }
+
+    if (_contType === 'application/json') {
         bodyData = JSON.stringify(body);
     }
 
-    if (contentType === 'application/x-www-form-urlencoded') {
+    if (_contType === 'application/x-www-form-urlencoded') {
         bodyData = queryString.stringify(body);
     }
 
