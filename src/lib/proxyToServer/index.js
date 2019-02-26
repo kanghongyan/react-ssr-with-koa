@@ -290,12 +290,8 @@ proxy.on('proxyReq', function (proxyReq, req, res, options) {
 
     const body = req._body;
 
-    if (!body || !Object.keys(body).length) {
+    if (!body) {
         return;
-    }
-
-    if (req.method !== 'POST') {
-        return
     }
 
     let _contType;
