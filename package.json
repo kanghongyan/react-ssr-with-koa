@@ -1,6 +1,6 @@
 {
   "name": "react-ssr-with-koa",
-  "version": "1.0.0-alpha.0.0.13",
+  "version": "1.0.0-alpha.0.0.14",
   "description": "react ssr with koa",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
