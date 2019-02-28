@@ -103,3 +103,27 @@ proxyToServer.forEach((file) => {
 });
 
 
+// WrapperForContainer
+const WrapperForContainer = [
+    'index.js'
+];
+WrapperForContainer.forEach((file) => {
+    babelCore.transformFile(path.resolve(__dirname, `../src/lib/WrapperForContainer/${file}`),
+        {
+            presets: [
+                "es2015",
+                "stage-0",
+                "react"
+            ]
+        },
+        (err, result) => {
+            if (err) {
+                console.log(err);
+                return
+            }
+            fs.writeFileSync(path.resolve(__dirname, `../dist/WrapperForContainer/${file}`), result.code)
+            // console.log(result.code)
+        }
+    );
+
+});
