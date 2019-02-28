@@ -6,11 +6,13 @@ import React from 'react'
 /**
  * 1. for route Container
  * const Comp = Wrapper({type: 'route', name: 'abc'})(Container)
+ * Comp.getInitialProps = async () => {...}
  * Comp.displayName = 'abc'
  * export default Comp
  *
  * 2. for root App
  * const Comp = Wrapper({type: 'app'})(Container)
+ * Comp.getInitialProps = async () => {...}
  * export default Comp
  *
  *

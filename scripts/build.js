@@ -108,7 +108,7 @@ const WrapperForContainer = [
     'index.js'
 ];
 WrapperForContainer.forEach((file) => {
-    babelCore.transformFile(path.resolve(__dirname, `../src/lib/WrapperForContainer/${file}`),
+    babelCore.transformFile(path.resolve(__dirname, `../src/WrapperForContainer/${file}`),
         {
             presets: [
                 "es2015",
