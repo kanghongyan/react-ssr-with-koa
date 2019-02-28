@@ -96,6 +96,11 @@ class Html {
             logger.error(e.stack)
         }
 
+        if (!App.App) {
+            logger.error('missing App!');
+            App.App = () => {}
+        }
+
         // save option
         this.option = option;
         this.app = App;
@@ -108,7 +113,8 @@ class Html {
     injectInitialData(data) {
         if (!this.option.ssr) return this;
 
-        this.initialData = data || {};
+        this.initialData.pageProps = data.pageProps || {};
+        this.initialData.routeProps = data.routeProps || {};
 
         return this
     }
@@ -210,6 +216,9 @@ class Html {
      * @private
      */
     async __enhanceApp(App) {
+
+        // getInitialStore
+        App.getInitialStore && await App.getInitialStore(this.ctx);
 
         // get InitialData from <App/>
         this.initialData.pageProps = Object.keys(this.initialData.pageProps).length ? this.initialData.pageProps : await getInitialData(App, this.ctx);

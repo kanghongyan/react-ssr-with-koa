@@ -2,9 +2,12 @@ const logger = require('../logger');
 
 const getInitialData = async (Component, ctx) => {
 
-    if (!Component.getInitialProps) return {};
+    const MainApp = Component.App;
 
-    const props = await Component.getInitialProps(ctx)
+    if (!MainApp) return {};
+    if (!MainApp.getInitialProps) return {};
+
+    const props = await MainApp.getInitialProps(ctx)
         .catch((e) => {
             logger.error(e.stack)
         });
