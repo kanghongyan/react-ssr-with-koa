@@ -300,8 +300,7 @@ proxy.on('proxyReq', function (proxyReq, req, res, options) {
     try {
         _contType = contentType.parse(proxyReq).type
     } catch (e) {
-        _contType = 'application/json';
-        logger.error(e.errorStack)
+        // logger.error(e.stack)
     }
 
     if (_contType === 'application/json') {
