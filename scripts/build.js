@@ -1,129 +1,104 @@
+const globby = require('globby');
 const path = require('path');
+const fs = require('fs-extra');
 const babelCore = require('babel-core');
-const fs = require('fs');
-const transform = require('babel-transform-dir')
+const del = require('del');
 
-// 这两个都需要build
-// def
-// constant
-// todo: fix
+async function _babelTransform (file, src, dest, option = {}) {
+    const filepath = path.join(src, file);
+    const content = await fs.readFile(filepath);
+    const destpath = path.join(dest, file);
 
-// util
-transform(
-    path.resolve(__dirname, '../src/util'),
-    path.resolve(__dirname, '../dist/util')
-)
-    .then(() => {
-        console.log('util done')
-    });
+    const {
+        code
+    } = babelCore.transform(content.toString(), option);
+
+    return fs.outputFile(destpath, code)
+}
 
 
-// html
-const html = [
-    'enhanceApp.js',
-    'getAppForPage.js',
-    'getInitialData.js',
-    'getTplForPage.js',
-    'index.js',
-    'MissingComp.js'
-];
+const _transform = (src, dest, options) => {
+    src = path.resolve(src);
+    dest = path.resolve(dest);
 
-html.forEach((file) => {
-    babelCore.transformFile(path.resolve(__dirname, `../src/lib/html/${file}`),
-        {
-            presets: [
-                "es2015",
-                "stage-0",
-                "react"
-            ]
-        },
-        (err, result) => {
-            if (err) {
-                console.log(err);
-                return
-            }
-            fs.writeFileSync(path.resolve(__dirname, `../dist/html/${file}`), result.code)
-            // console.log(result.code)
-        }
-    );
+    function t (file) {
+        return _babelTransform(file, src, dest, options)
+    }
 
-});
+    return globby('**/*.js', {
+        cwd: src
+    })
+        .then((files) => {
+            return Promise.all(files.map(t))
+        })
+        .catch((e) => {
+            return Promise.reject(e)
+        })
+};
 
 
-// logger
-const logger = [
-    'index.js',
-];
-
-logger.forEach((file) => {
-    babelCore.transformFile(path.resolve(__dirname, `../src/lib/logger/${file}`),
-        {
-            presets: [
-                "es2015",
-                "stage-0",
-                "react"
-            ]
-        },
-        (err, result) => {
-            if (err) {
-                console.log(err);
-                return
-            }
-            fs.writeFileSync(path.resolve(__dirname, `../dist/logger/${file}`), result.code)
-            // console.log(result.code)
-        }
-    );
-
-});
-
-// proxyToServer
-const proxyToServer = [
-    'index.js',
-    'error.js'
-];
-proxyToServer.forEach((file) => {
-    babelCore.transformFile(path.resolve(__dirname, `../src/lib/proxyToServer/${file}`),
-        {
-            presets: [
-                "es2015",
-                "stage-0",
-                "react"
-            ]
-        },
-        (err, result) => {
-            if (err) {
-                console.log(err);
-                return
-            }
-            fs.writeFileSync(path.resolve(__dirname, `../dist/proxyToServer/${file}`), result.code)
-            // console.log(result.code)
-        }
-    );
-
-});
+const compile = (src, dist, option) => {
+    return new Promise((resolve, reject) => {
+        _transform(src, dist, option)
+            .then(() => {
+                resolve()
+            })
+            .catch((e) => {
+                reject(e)
+            })
+    })
+};
 
 
-// WrapperForContainer
-const WrapperForContainer = [
-    'index.js'
-];
-WrapperForContainer.forEach((file) => {
-    babelCore.transformFile(path.resolve(__dirname, `../src/WrapperForContainer/${file}`),
-        {
-            presets: [
-                "es2015",
-                "stage-0",
-                "react"
-            ]
-        },
-        (err, result) => {
-            if (err) {
-                console.log(err);
-                return
-            }
-            fs.writeFileSync(path.resolve(__dirname, `../dist/WrapperForContainer/${file}`), result.code)
-            // console.log(result.code)
-        }
-    );
+const start = async () => {
 
-});
+    const option = {
+        presets: [
+            "es2015",
+            "stage-0",
+            "react"
+        ]
+    };
+
+    // clear
+    await del(path.resolve('dist'));
+
+
+    try {
+        await Promise.all([
+            // lib
+            compile(
+                path.resolve(__dirname, '../src/lib'),
+                path.resolve(__dirname, '../dist'),
+                option
+            ),
+
+            // util
+            compile(
+                path.resolve(__dirname, '../src/util'),
+                path.resolve(__dirname, '../dist/util'),
+                option
+            ),
+
+            // WrapperForContainer
+            compile(
+                path.resolve(__dirname, '../src/WrapperForContainer'),
+                path.resolve(__dirname, '../dist/WrapperForContainer'),
+                option
+            )
+        ])
+    } catch (e) {
+        console.log(e);
+        console.log('build error!!!')
+    }
+
+
+    console.log('build done!')
+
+
+
+};
+
+
+// start compile
+start();

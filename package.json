@@ -27,7 +27,6 @@
   "dependencies": {
     "babel-polyfill": "^6.26.0",
     "content-type": "1.0.4",
-    "glob": "^7.1.3",
     "hoist-non-react-statics": "^3.3.0",
     "http-proxy": "^1.17.0",
     "ignore-styles": "^5.0.1",
@@ -50,6 +49,8 @@
     "babel-preset-react": "^6.24.1",
     "babel-preset-react-app": "^3.1.2",
     "babel-preset-stage-0": "^6.24.1",
-    "babel-transform-dir": "^1.0.5"
+    "del": "^4.0.0",
+    "fs-extra": "^7.0.1",
+    "globby": "^9.1.0"
   }
 }
