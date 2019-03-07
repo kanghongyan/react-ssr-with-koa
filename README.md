@@ -1,24 +1,21 @@
-
-
-
-
 # react-ssr-with-koa
 
-react ssr
+react-ssr-with-koa (alpha)
 
-### config/ssr.js
+earth-scripts@2.x (beta)
 
-标识ssr入口App文件。
 
-如果有用到react-router，则需要手动写indexSSR入口文件
+## config/ssr.js
 
-如果没有用到react-router，则传入项目根App即可
+ssr入口文件。由earth-scripts读取，并编译打包。
 
 ```
+例如：入口文件名为indexSSR
+
 module.exports = {
     appEntry: {
         "pageA": path.resolve('src/pages/pageA/indexSSR'),
-        "pageB": path.resolve('src/pages/pageB/containers/App')
+        "pageB": path.resolve('src/pages/pageB/indexSSR/A')
     },
 };
 
@@ -42,25 +39,24 @@ import routeConfig from './containers/routeConfig';
 class AppSSR extends Component {
 
     /**
-     * 每一个page都有一个getInitialProps，用于获取初始数据或一些初始化操作
+     * 可选。用redux时必选。
+     * 创建store，并赋值给ctx.reduxStore
      * ctx即koa里的ctx
      *
      * @param ctx
      * @return {Promise<*>}
      */
-    static async getInitialProps(ctx) {
+    static async getInitialStore(ctx) {
 
+        // 每次请求都必须创建一个新的store实例
         ctx.reduxStore = createStore(reducers, {});
-        // fetch or something
-        // return出的数据可以在render中的this.props中拿到
-        // todo: server在这里请求数据
-        // 在这里拿到server的数据
-        return {
-            a: 123
-        }
+        
     }
 
+    // 可选。如果路由组件需要server端获取初始数据，需传入routeConfig
     static routeConfig = routeConfig;
+    // 必选。需要传入根App组件
+    static App = App
 
 
 
@@ -83,10 +79,7 @@ class AppSSR extends Component {
                     location={location}
                     context={context}
                 >
-                    <App
-                        initialData = {initialData}
-                        routeConfig = {routeConfig}
-                    />
+                    <App routeConfig = {routeConfig}/>
                 </StaticRouter>
             </Provider>
 
@@ -101,3 +94,101 @@ class AppSSR extends Component {
 export default AppSSR
 
 ```
+
+#### dist/WrapperForContainer
+
+高阶组件。包装需要获取数据的container组件，提供在server和client端通用的获取数据的方法。被包装的组件初始数据可以从props.initialData上拿到。
+
+WrapperForContainer({name: xx, type: xx}})(Container)
+
+说明：
+
+| option | 类型 | 说明 | 默认值 |
+| ------ | ------ | ------ | ------ | 
+| type | string | 路由组件or顶级App组件 | app |
+| name | string | type='route'时，路由组件的name，用于获取该组件对应的数据 | undefined |
+
+
+使用方式：
+
+```
+class My extends React.Component {
+
+    static async getInitialProps() {
+        // todo: server在这里请求数据
+        return 'my data from server'
+    }
+    
+    ...
+    
+    render() {
+        return (
+            <div>{this.props.initialData}</div>
+        )
+    }
+}
+
+export default Wrapper({name: 'My', type: 'route'})(My)
+
+```
+
+### server side
+
+#### index.js
+
+server入口方法
+
+```
+const start = require('react-ssr-with-koa');
+const Koa = require('koa');
+
+const app = new Koa();
+
+start(app, {useDefaultProxy: true, useDefaultSSR: false})
+    .then(() => {
+       // custom server
+    })
+
+```
+
+#### dist/html
+
+ssr核心方法
+
+```
+    // koa router
+    router.get("/index*", async (ctx, next) => {
+
+        const PAGE = 'index';
+
+        const htmlObj = new html(ctx, PAGE)
+            .init({
+                ssr: true,
+            })
+            // 如果不在这里传入initialData
+            // 可在组件static getInitialProps()方法里直接return数据
+            // 每种数据的获取方式只能选择其中一种方式，不能混用
+            // 使用redux情况下，需要在indexSSR组件中获取数据，见示例
+            // .injectInitialData({
+                // pageProps: 'fffff',    // 根组件(App)下的数据
+                // routeProps: {     // 路由组件下的数据
+                //     siteDetail: {
+                //         serverData: 'my inject data'
+                //     }
+                // }
+            // })
+
+        await htmlObj.render().catch((e) => {
+                logger.error(e);
+            }
+        );
+    });
+```
+
+#### dist/proxyToServer
+
+工具方法：接口代理
+
+#### dist/logger
+
+工具方法：打日志

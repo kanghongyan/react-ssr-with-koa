@@ -1,63 +1,55 @@
-const http = require('http');
+require('ignore-styles'); // 不处理require('xx.scss')这种文件 https://www.npmjs.com/package/ignore-styles
+require('babel-polyfill');
+// client和server端通用的fetch
+require('isomorphic-unfetch');
 
-const start = require('./app');
-const env = require('./def');
-const logger = require('./dist/logger');
+const Loadable = require('react-loadable');
+const bodyParser = require('koa-bodyparser');
+const staticRouter = require('./src/middleware/static');
+const performance = require('./src/middleware/performance');
+const router = require('./src/router');
 
+// 添加global对象
+// todo: 兼容现有组件，后续需要删掉
+global.document = require('./src/fakeObject/document');
+global.window = require('./src/fakeObject/window');
+global.navigator = window.navigator;
 
-start().then((app) => {
-    const port = env.port;
+require('./dist/util/preLoadComp')();
 
-    const appCallback = app.callback();
-    const server = http.createServer(appCallback);
+const start = async (app, {useDefaultProxy = false, useDefaultSSR = false}) => {
 
-    // catch error
-    app.use(async (ctx, next) => {
-        try {
-            await next()
-        } catch (e) {
-            logger.error(e.stack);
-            ctx.body = 'server error';
-        }
-    });
+    await Loadable.preloadAll();
 
-    app.performance();
+    if (!app) return;
 
-    app.init({
-        useDefaultSSR: true
-    });
+    // performance
+    app.performance = () => {
+        app.use(performance())
+    };
 
-    app.on("error", (err, ctx) => {//捕获异常记录错误日志
-        logger.error(err.stack);
-        ctx.body = 'server app onError'
-    });
+    // static
+    app.use(staticRouter());
 
-    server
-        .listen(port)
-        .on('clientError', (err, socket) => {
-            // handleErr(err, 'caught_by_koa_on_client_error');
-            socket.end('HTTP/1.1 400 Bad Request Request invalid\r\n\r\n');
+    // favicon
+    app.use(router.favicon.routes());
+
+    if (useDefaultProxy) {
+        // bodyParser
+        app.use(bodyParser());
+        app.use((ctx, next) => {
+            // 开启了bodyparser
+            // 约定，向req中注入_body for "proxyToServer"
+            ctx.req._body = ctx.request.body;
+            return next();
         });
+    }
 
+    if (useDefaultSSR) {
+        // page
+        app.use(router.page.routes());
+        app.use(router.page.allowedMethods());
+    }
+};
 
-
-    console.log(`Server running on: http://localhost: ${port}`);
-});
-
-
-
-
-// todo: hot reload
-// let currentApp = appCallback;
-/*if (module.hot) {
-    module.hot.accept('./app', () => {
-        // todo: why and how
-        server.removeAllListeners('request', server);
-        server.on('request', app.callback())
-
-        // server.removeListener('request', currentApp);
-        // currentApp = app.callback();
-        // server.on('request', currentApp);
-    });
-}*/
-
+module.exports = start;

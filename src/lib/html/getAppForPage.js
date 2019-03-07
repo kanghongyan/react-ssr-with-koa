@@ -13,7 +13,7 @@ module.exports = (page) => {
 
         logger.error(e.stack);
 
-        console.log(`${page}/containers/App.js 没找到`);
+        console.log(`build/server/${page}.generated.js is missing!`);
 
     }
 

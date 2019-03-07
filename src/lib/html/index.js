@@ -97,7 +97,6 @@ class Html {
         }
 
         if (!App.App) {
-            logger.error('missing App!');
             App.App = () => {}
         }
 

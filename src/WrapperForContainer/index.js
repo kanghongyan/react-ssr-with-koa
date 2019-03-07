@@ -1,6 +1,40 @@
 import React from 'react'
 import hoistStatics from 'hoist-non-react-statics'
 
+const PAGE_DATA_KEY = 'pageProps';
+const ROUTE_DATA_KEY = 'routeProps';
+
+const PAGE_TYPE = 'app';
+const ROUTE_TYPE = 'route';
+
+const _isClient = () => {
+    return typeof window === 'object' && !!window.__PRELOADED_STATE__
+};
+
+const _getClientData = (type, name) => {
+    if (type === PAGE_TYPE) {
+        if (window &&
+            window.__PRELOADED_STATE__
+        ) {
+            return window.__PRELOADED_STATE__[PAGE_DATA_KEY]
+        }
+    }
+    if (type === ROUTE_TYPE) {
+        if (window &&
+            window.__PRELOADED_STATE__ &&
+            window.__PRELOADED_STATE__[ROUTE_DATA_KEY]
+        ) {
+            return window.__PRELOADED_STATE__[ROUTE_DATA_KEY][name]
+        }
+    }
+};
+
+const _deleteClientData = (type, name) => {
+    if (window && window.__PRELOADED_STATE__) {
+        type === PAGE_TYPE && delete window.__PRELOADED_STATE__[PAGE_DATA_KEY];
+        type === ROUTE_TYPE && delete window.__PRELOADED_STATE__[ROUTE_DATA_KEY][name];
+    }
+};
 
 /**
  *
@@ -38,15 +72,11 @@ import hoistStatics from 'hoist-non-react-statics'
 
 const Wrapper = (option) => {
 
-    const routeName = option.name;
-    const compType = option.type || 'app';
-
-
-    const isMainApp = compType === 'app';
-    const preloadedStatePorps = isMainApp ? 'pageProps' : 'routeProps';
-
-
     return (Comp) => {
+
+        const compType = option.type || 'app';
+        const routeName = option.name || Comp.displayName || Comp.name;
+
 
         class Container extends React.Component {
 
@@ -56,24 +86,19 @@ const Wrapper = (option) => {
             constructor(props) {
                 super(props);
 
-                this.isClient = !!window.__PRELOADED_STATE__;
+                this.isClient = _isClient();
 
 
                 // 对window.__PRELOADED_STATE__.routeProps做处理
                 // 对window.__PRELOADED_STATE__.pageProps做处理
                 // pageProps由于是顶级组件，可以放一些全部不变的数据
-                if (isMainApp) {
-                    this.state  = {
-                        initialData: this.isClient && window.__PRELOADED_STATE__[preloadedStatePorps] ?
-                            window.__PRELOADED_STATE__[preloadedStatePorps] :
-                            this.props.initialData
-                    }
-                } else {
-                    this.state  = {
-                        initialData: this.isClient && window.__PRELOADED_STATE__[preloadedStatePorps][routeName] ?
-                            window.__PRELOADED_STATE__[preloadedStatePorps][routeName] :
-                            this.props.initialData
-                    }
+                const propsData = this.props.initialData;
+                const windowData = this.isClient ? _getClientData(compType, routeName) : '';
+
+                this.state  = {
+                    initialData: this.isClient && windowData ?
+                        windowData :
+                        propsData
                 }
 
 
@@ -81,8 +106,7 @@ const Wrapper = (option) => {
 
             componentDidMount() {
                 if (this.state.initialData) {
-                    isMainApp && delete window.__PRELOADED_STATE__[preloadedStatePorps]
-                    !isMainApp && delete window.__PRELOADED_STATE__[preloadedStatePorps][routeName];
+                    _deleteClientData(compType, routeName)
                 }
             }
 
