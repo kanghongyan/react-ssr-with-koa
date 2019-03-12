@@ -114,7 +114,7 @@ class ProxyToServer {
 
 
             try {
-                formatData.__fns = true;
+                // formatData.__fns = true;
                 formatData = JSON.stringify(formatData)
             } catch (e) {
                 formatData = JSON.stringify(errorBody(RES_CODE.PTS_SEND_TO_CLIENT_ERROR, formatData));
