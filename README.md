@@ -1,8 +1,54 @@
 # react-ssr-with-koa
 
+generate-earth (beta) react-ssr项目
+
 react-ssr-with-koa (alpha)
 
 earth-scripts@2.x (beta)
+
+
+## template
+
+模版文件夹，每个page对应一个js
+
+
+说明：
+
+| 参数 | 类型 | 说明 | 默认值 |
+| ------ | ------ | ------ | ------ | 
+| stringMarkup | string | ssr时，React.renderToString()后的结果 | '' |
+| preloadState | string | ssr时，window上挂载的数据  | '' |
+| options | object | 页面需要引用的css、js |  |
+| ctx | object | koa里的ctx |  |
+
+
+```
+
+// page1.js
+
+module.exports = (stringMarkup, preloadState, options, ctx) => (
+   
+   `<!doctype html>
+   <html lang="zh-CN">
+   <head>
+       <meta charset="utf-8">
+       <title>title</title>
+       <script>
+           window.PointerEvent = void 0
+       </script>
+       ${options.css}
+       ${preloadState}
+   </head>
+   <body>
+   <div id="root">${stringMarkup}</div>
+   ${options.js}
+   </body>
+   </html>
+       
+       `
+
+)
+```
 
 
 ## config/ssr.js
@@ -95,9 +141,9 @@ export default AppSSR
 
 ```
 
-#### dist/WrapperForContainer
+### dist/WrapperForContainer
 
-高阶组件。包装需要获取数据的container组件，提供在server和client端通用的获取数据的方法。被包装的组件初始数据可以从props.initialData上拿到。
+高阶组件。包装需要获取数据的container组件，提供在server和client端通用的获取数据的方法。被包装的组件初始数据可以从props.initialData上拿到,不需要手动从window上拿。
 
 WrapperForContainer({name: xx, type: xx}})(Container)
 
@@ -134,9 +180,17 @@ export default Wrapper({name: 'My', type: 'route'})(My)
 
 ### server side
 
-#### index.js
+#### server端入口文件
 
 server入口方法
+
+说明：
+
+| option | 类型 | 说明 | 默认值 |
+| ------ | ------ | ------ | ------ | 
+| useDefaultProxy | bool | 使用自带的接口代理工具。为true时，在app上挂载body-parser中间件 | false |
+| useDefaultSSR | bool | 为true时，在app上挂载/pageName路由，并对page下的所有页面开启ssr，访问地址 host:port/pageName。 | false |
+
 
 ```
 const start = require('react-ssr-with-koa');
@@ -144,7 +198,7 @@ const Koa = require('koa');
 
 const app = new Koa();
 
-start(app, {useDefaultProxy: true, useDefaultSSR: false})
+start(app, {useDefaultProxy: true, useDefaultSSR: true})
     .then(() => {
        // custom server
     })
@@ -185,6 +239,23 @@ ssr核心方法
     });
 ```
 
+#### dist/logger
+
+工具方法（可选）：打日志。可以自定义logger
+
+```
+// 自定义logger必须实现info和error方法
+const myLogger = {
+    info: () => {},
+    error: () => {}
+}
+const logger = require('react-ssr-with-koa/dist/logger');
+// 参数为空，则使用默认logger
+logger.init(myLogger)
+
+app.use(xxxxx)
+```
+
 #### dist/proxyToServer
 
 工具方法（可选）：接口代理
@@ -195,14 +266,14 @@ ssr核心方法
 
 router.all('/:channel/:other*', async (ctx, next) => {
 
-    const _app_proxy = new Proxy2Server(ctx.req, ctx.res);
+    const appProxy = new Proxy2Server(ctx.req, ctx.res);
 
     const proxyOption = {
         selfHandleResponse: false,
         target: `${proxyHost}/${ctx.url}`,
     };
 
-    await _app_proxy.asyncTo(proxyOption, ctx)
+    await appProxy.asyncTo(proxyOption, ctx)
            .catch((e) => {
                 console.log(e)
             });;
@@ -216,7 +287,7 @@ router.all('/:channel/:other*', async (ctx, next) => {
 router.post('/api/*', async (ctx, next) => {
     ctx.respond = false;
 
-    // 在res上挂载_app_proxy,拿到response时会调用这个方法
+    // 在res上挂载app_proxyRes,拿到response时会调用这个方法
     // 这里可以拿到返回值并做简单的处理
     res.app_proxyRes = (dataObj, send) => {
         send(dataObj)
@@ -228,23 +299,6 @@ router.post('/api/*', async (ctx, next) => {
         selfHandleResponse: true,
         target: `${def.proxy.payment}/${proxyPath}`
     };
-    await appProxy.to(proxyOption, ctx);
+    appProxy.to(proxyOption, ctx);
 });
-```
-
-
-#### dist/logger
-
-工具方法（可选）：打日志。可以自定义logger
-
-```
-// 自定义logger必须实现info和error方法
-const myLogger = {
-    info: () => {},
-    error: () => {}
-}
-const logger = require('react-ssr-with-koa/dist/logger');
-logger.init(myLogger)
-
-app.use(xxxxx)
 ```
