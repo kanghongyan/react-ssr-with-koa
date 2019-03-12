@@ -11,10 +11,10 @@ const init = (loggerIns) => {
 module.exports = {
     init: init,
     info: (msg) => {
-        logger.info && logger.info(msg)
+        logger && logger.info && logger.info(msg)
     },
     error: (msg) => {
-        logger.error && logger.error(msg)
+        logger && logger.error && logger.error(msg)
     },
     logger: logger
 };
