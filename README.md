@@ -53,7 +53,7 @@ class AppSSR extends Component {
         
     }
 
-    // 可选。如果路由组件需要server端获取初始数据，需传入routeConfig
+    // 可选。如果路由组件需要server端获取初始数据，需传入routeConfig。方便server端根据path拿到对应的路由组件
     static routeConfig = routeConfig;
     // 必选。需要传入根App组件
     static App = App
@@ -79,7 +79,7 @@ class AppSSR extends Component {
                     location={location}
                     context={context}
                 >
-                    <App routeConfig = {routeConfig}/>
+                    <App/>
                 </StaticRouter>
             </Provider>
 
@@ -187,8 +187,64 @@ ssr核心方法
 
 #### dist/proxyToServer
 
-工具方法：接口代理
+工具方法（可选）：接口代理
+
+*接口转发，不处理response*
+
+```
+
+router.all('/:channel/:other*', async (ctx, next) => {
+
+    const _app_proxy = new Proxy2Server(ctx.req, ctx.res);
+
+    const proxyOption = {
+        selfHandleResponse: false,
+        target: `${proxyHost}/${ctx.url}`,
+    };
+
+    await _app_proxy.asyncTo(proxyOption, ctx)
+           .catch((e) => {
+                console.log(e)
+            });;
+});
+
+```
+
+*接口转发，简单处理response。仅适用于单接口改动*
+
+```
+router.post('/api/*', async (ctx, next) => {
+    ctx.respond = false;
+
+    // 在res上挂载_app_proxy,拿到response时会调用这个方法
+    // 这里可以拿到返回值并做简单的处理
+    res.app_proxyRes = (dataObj, send) => {
+        send(dataObj)
+    };
+
+    const appProxy = new Proxy2Server(ctx.req, ctx.res);
+
+    const proxyOption = {
+        selfHandleResponse: true,
+        target: `${def.proxy.payment}/${proxyPath}`
+    };
+    await appProxy.to(proxyOption, ctx);
+});
+```
+
 
 #### dist/logger
 
-工具方法：打日志
+工具方法（可选）：打日志。可以自定义logger
+
+```
+// 自定义logger必须实现info和error方法
+const myLogger = {
+    info: () => {},
+    error: () => {}
+}
+const logger = require('react-ssr-with-koa/dist/logger');
+logger.init(myLogger)
+
+app.use(xxxxx)
+```
