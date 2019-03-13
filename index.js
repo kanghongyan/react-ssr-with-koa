@@ -5,7 +5,6 @@ require('isomorphic-unfetch');
 
 const Loadable = require('react-loadable');
 const bodyParser = require('koa-bodyparser');
-const staticRouter = require('./src/middleware/static');
 const performance = require('./src/middleware/performance');
 const router = require('./src/router');
 
@@ -28,11 +27,10 @@ const start = async (app, {useDefaultProxy = false, useDefaultSSR = false}) => {
         app.use(performance())
     };
 
-    // static
-    app.use(staticRouter());
-
     // favicon
-    app.use(router.favicon.routes());
+    app.favicon = () => {
+        app.use(router.favicon.routes());
+    };
 
     if (useDefaultProxy) {
         // bodyParser
