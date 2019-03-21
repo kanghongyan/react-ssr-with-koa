@@ -11,7 +11,7 @@ module.exports = {
         },
     getTplByPage:
         (name) => {
-            return require(path.resolve(`template/${name}.js`))
+            return path.resolve(`template/${name}.html`)
         },
     getManifest:
         (name = 'asset-manifest.json') => {

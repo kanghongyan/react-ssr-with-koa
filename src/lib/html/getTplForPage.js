@@ -1,17 +1,34 @@
 const getTplByPage = require('../../context').getTplByPage;
+const ejs = require('ejs');
 
 const getTplForPage = (ctx, page, stringMarkup, preloadState, options) => {
-    const tpl = getTplByPage(page);
 
-    // flexibleStr webpack.config注入
-    // add other option
-    // options.flexibleStr = flexibleStr;
+    return new Promise((resolve, reject) => {
 
-    if (tpl) {
-        return tpl(stringMarkup, preloadState, options, ctx)
-    }
+        const tpl = getTplByPage(page);
 
-    return ''
+        if (tpl) {
+
+            ejs.renderFile(tpl, {
+                ...options,
+                stringMarkup,
+                preloadState
+            }, {
+                cache: false
+            }, function(err, str){
+                // str => Rendered HTML string
+                err ? reject(err) : resolve(str)
+            });
+
+        } else {
+            reject(`template file : ${tpl} is missing!`)
+        }
+
+
+
+
+    })
+
 };
 
 module.exports = getTplForPage;

@@ -1,13 +1,11 @@
 const React = require('react');
 const ReactDOMServer = require('react-dom/server');
-const StaticRouter = require('react-router-dom').StaticRouter;
 // const multiStream = require('multistream');
 // const stringStream = require('string-to-stream');
 const Loadable = require('react-loadable');
 
 // const cheerio = require('cheerio');
 const getAppForPage = require('./getAppForPage');
-// const pageStream = require('../util/stream');
 const logger = require('../logger');
 const maxMem = require('../../def').maxMem;
 const getInitialData = require('./getInitialData');
@@ -120,7 +118,7 @@ class Html {
 
 
 
-    async render() {
+    async render(customData = {}) {
 
         const ctx = this.ctx;
 
@@ -141,7 +139,7 @@ class Html {
         if (!ssr) {
             ctx.set('Content-Type', 'text/html; charset=utf-8');
             ctx.status = 200;
-            ctx.body = this.__generateTpl();
+            ctx.body = await this.__generateTpl('', customData);
 
             return
         }
@@ -163,7 +161,7 @@ class Html {
         }
 
 
-        const fullHtml = this.__generateTpl(pageMarkup);
+        const fullHtml = await this.__generateTpl(pageMarkup, customData);
 
 
         if (this.routerContext.url) {
@@ -180,22 +178,24 @@ class Html {
     /**
      * 读tpl生成html文档
      * @param pageMarkup
+     * @param customData
      * @return {string}
      * @private
      */
-    __generateTpl (pageMarkup = '') {
+    async __generateTpl (pageMarkup = '', customData = {}) {
         const scripts = getScripts(this.page, this.modules);
         const css = getCss(this.page);
 
         let fullHtml = '';
 
         try {
-            fullHtml = getTpl(
+            fullHtml = await getTpl(
                 this.ctx,
                 this.page,
                 pageMarkup,
                 this.option.ssr ? `<script>window.__PRELOADED_STATE__ = ${JSON.stringify(this.__PRELOADED_STATE__).replace(/</g, '\\\u003c')}</script>` : '',
                 {
+                    ...customData,
                     js: scripts.map((s) => `<script type="text/javascript" src="${s}"></script>`).join('\n'),
                     css: css.map((s) => `<link href="${s}" rel="stylesheet">`).join('\n')
                 }
