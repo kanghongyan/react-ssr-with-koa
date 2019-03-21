@@ -1,10 +1,6 @@
 const path = require('path');
 
 module.exports = {
-    getCustomDef:
-        (name = 'server.js') => {
-            return require(path.resolve(`config/server`))
-        },
     getAppByPage:
         (name) => {
             return require(path.resolve(`build/server/${name}.generated.js`));
