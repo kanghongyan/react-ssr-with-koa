@@ -9,7 +9,7 @@ earth-scripts@2.x (beta)
 
 ## template
 
-模版文件夹，每个page对应一个js
+[ejs](https://ejs.co/)模版文件夹，每个page对应一个html
 
 
 说明：
@@ -18,36 +18,52 @@ earth-scripts@2.x (beta)
 | ------ | ------ | ------ | ------ | 
 | stringMarkup | string | ssr时，React.renderToString()后的结果 | '' |
 | preloadState | string | ssr时，window上挂载的数据  | '' |
-| options | object | 页面需要引用的css、js |  |
-| ctx | object | koa里的ctx |  |
+| css | string | 页面需要引用的css |  |
+| js | string | 页面需要引用的js |  |
+
+注：这几个参数使用*<%-*语法，不需要转译
 
 
 ```
 
 // page1.js
 
-module.exports = (stringMarkup, preloadState, options, ctx) => (
-   
-   `<!doctype html>
-   <html lang="zh-CN">
-   <head>
-       <meta charset="utf-8">
-       <title>title</title>
-       <script>
-           window.PointerEvent = void 0
-       </script>
-       ${options.css}
-       ${preloadState}
-   </head>
-   <body>
-   <div id="root">${stringMarkup}</div>
-   ${options.js}
-   </body>
-   </html>
-       
-       `
+<!doctype html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,shrink-to-fit=no,user-scalable=0, viewport-fit=cover">
+    <meta name="theme-color" content="#000000">
+    <meta content="yes" name="apple-mobile-web-app-capable"/>
+    <meta content="black" name="apple-mobile-web-app-status-bar-style"/>
+    <meta name="format-detection" content="telephone=no"/>
+    <title>收银台服务及业务委托协议</title>
+    <script>
+        window.PointerEvent = void 0
+    </script>
+    <%- css %>
+    <%- preloadState %>
+</head>
+<body>
+<div id="root"><%- stringMarkup %></div>
+<%- js %>
+</body>
+</html>
 
-)
+```
+
+通过在ssr render()方法中传递对象，可以在模版中注入自定义数据
+
+```
+ssr方法：
+
+ssrObject.render({myData: 12333})
+
+
+template：
+
+<% myData %>
+
 ```
 
 
