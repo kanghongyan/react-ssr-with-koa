@@ -1,5 +1,8 @@
-const getTplByPage = require('../../context').getTplByPage;
 const ejs = require('ejs');
+const fs = require('fs');
+
+const getTplByPage = require('../../context').getTplByPage;
+const flexibleStr = fs.readFileSync('node_modules/lm-flexible/build/changeRem-min.js', 'utf-8');
 
 const getTplForPage = (ctx, page, stringMarkup, preloadState, options) => {
 
@@ -11,6 +14,7 @@ const getTplForPage = (ctx, page, stringMarkup, preloadState, options) => {
 
             ejs.renderFile(tpl, {
                 ...options,
+                flexibleStr,
                 stringMarkup,
                 preloadState
             }, {
