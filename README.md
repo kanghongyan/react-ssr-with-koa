@@ -1,15 +1,15 @@
 # react-ssr-with-koa
 
-generate-earth (beta) react-ssr项目
+* 使用generate-earth (beta) 创建react-ssr项目
 
-react-ssr-with-koa (alpha)
+* 引入react-ssr-with-koa (alpha) ssr工具包
 
-earth-scripts@2.x (beta)
+* 使用earth-scripts@2.x (beta) 打包工具
 
 
 ## template
 
-[ejs](https://ejs.co/)模版文件夹，每个page对应一个html
+[ejs语法](https://ejs.co/)模版文件夹，每个page对应一个html
 
 
 说明：
@@ -20,6 +20,7 @@ earth-scripts@2.x (beta)
 | preloadState | string | ssr时，window上挂载的数据  | '' |
 | css | string | 页面需要引用的css |  |
 | js | string | 页面需要引用的js |  |
+| flexibleStr | string | 
 
 注：这几个参数使用*<%-*语法，不需要转译
 
@@ -40,6 +41,9 @@ earth-scripts@2.x (beta)
     <title>收银台服务及业务委托协议</title>
     <script>
         window.PointerEvent = void 0
+    </script>
+    <script>
+        <%- flexibleStr %>
     </script>
     <%- css %>
     <%- preloadState %>
@@ -69,7 +73,7 @@ template：
 
 ## config/ssr.js
 
-ssr入口文件。由earth-scripts读取，并编译打包。
+ssr入口文件，仅打包react代码。由earth-scripts读取，并编译打包到build/server下
 
 ```
 例如：入口文件名为indexSSR
@@ -170,17 +174,26 @@ WrapperForContainer({name: xx, type: xx}})(Container)
 | type | string | 路由组件or顶级App组件 | app |
 | name | string | type='route'时，路由组件的name，用于获取该组件对应的数据 | undefined |
 
+getInitialProps方法仅在server端执行。
+
+由于这些组件是client、server端通用，为了不将仅在server端执行的代码打包到client端，可在这些代码前后加入标识`// #if process.env.IS_SERVER === true` `// #endif`
+
 
 使用方式：
 
 ```
+// #if process.env.IS_SERVER === true
+import only-server-used-modules from 'only-server-used-modules'
+// #endif
+
 class My extends React.Component {
 
+    // #if process.env.IS_SERVER === true
     static async getInitialProps() {
         // todo: server在这里请求数据
         return 'my data from server'
     }
-    
+    // #endif
     ...
     
     render() {
