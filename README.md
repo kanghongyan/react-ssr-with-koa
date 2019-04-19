@@ -289,7 +289,6 @@ app.use(xxxxx)
 
 工具方法（可选）：接口代理
 
-*接口转发，不处理response*
 
 ```
 
@@ -298,7 +297,7 @@ router.all('/:channel/:other*', async (ctx, next) => {
     const appProxy = new Proxy2Server(ctx.req, ctx.res);
 
     const proxyOption = {
-        selfHandleResponse: false,
+        selfHandleResponse: true, // 处理java 500
         target: `${proxyHost}/${ctx.url}`,
     };
 
@@ -308,26 +307,4 @@ router.all('/:channel/:other*', async (ctx, next) => {
             });;
 });
 
-```
-
-*接口转发，简单处理response。仅适用于单接口改动*
-
-```
-router.post('/api/*', async (ctx, next) => {
-    ctx.respond = false;
-
-    // 在res上挂载app_proxyRes,拿到response时会调用这个方法
-    // 这里可以拿到返回值并做简单的处理
-    res.app_proxyRes = (dataObj, send) => {
-        send(dataObj)
-    };
-
-    const appProxy = new Proxy2Server(ctx.req, ctx.res);
-
-    const proxyOption = {
-        selfHandleResponse: true,
-        target: `${def.proxy.payment}/${proxyPath}`
-    };
-    appProxy.to(proxyOption, ctx);
-});
 ```
