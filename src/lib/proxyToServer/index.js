@@ -105,6 +105,7 @@ class ProxyToServer {
 
         proxy.web(req, res,
             {
+                selfHandleResponse: true,
                 changeOrigin: true,
                 // agent: agent,
                 headers: {
