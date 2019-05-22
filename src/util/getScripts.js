@@ -30,35 +30,18 @@ const getAsyncBundle = (modules) => {
 const getScripts = (page, asyncModules) => {
 
     const modules = getAsyncBundle(asyncModules);
+    const manifest =  getManifest();
+
+    if (!manifest) return  [];
 
     const preLoc = staticPath.js;
 
-    // development
-    if (process.env.NODE_ENV === 'development') {
-
-
-        return [
-            `${preLoc}static/js/runtime.js`,
-            `${preLoc}static/js/vendor.js`,
-            ...modules,
-            `${preLoc}static/js/${page}.js`
-        ]
-    }
-    // production
-    else {
-
-        let manifest =  getManifest();
-
-        if (!manifest) return  [];
-
-        return [
-            `${preLoc}${manifest['runtime.js']}`,
-            `${preLoc}${manifest['vendor.js']}`,
-            ...modules,
-            `${preLoc}${manifest[`${page}.js`]}`
-        ]
-
-    }
+    return [
+        `${preLoc}${manifest['runtime.js']}`,
+        `${preLoc}${manifest['vendor.js']}`,
+        ...modules,
+        `${preLoc}${manifest[`${page}.js`]}`
+    ]
 }
 
 module.exports = getScripts;
