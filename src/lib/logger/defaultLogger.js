@@ -22,7 +22,7 @@ const commonOption = {
     datePattern: 'YYYY-MM-DD',
     // zippedArchive: true,
     // maxSize: '20m',
-    // maxFiles: '14d'
+    maxFiles: '14d'
 };
 
 const myFormat = printf(info => {
