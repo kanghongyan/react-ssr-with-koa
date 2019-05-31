@@ -19,6 +19,8 @@ declare namespace ReactSSRWithKoa {
         injectInitialData(data: {dataProps: object, routeProps: object}): Html
         render(customData?: object): Promise<void>
     }
+
+    function WrapperForContainer(): any;
 }
 
 

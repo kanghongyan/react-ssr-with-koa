@@ -143,4 +143,6 @@ const Wrapper = (option) => {
     }
 };
 
-export default Wrapper
+export {
+    Wrapper
+}
