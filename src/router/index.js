@@ -1,18 +1,5 @@
-const page = require('./page');
-
-const Router = require('koa-router');
-const faviconRouter = new Router();
-
-
-
-faviconRouter.get('/favicon.ico', (ctx, next) => {
-    ctx.status = 200;
-    ctx.body = ''
-});
-
-
-
-module.exports = {
-    page,
-    favicon: faviconRouter
-};
+"use strict";
+exports.__esModule = true;
+var decorater_1 = require("./decorater");
+var page = decorater_1.initPageCtrl();
+exports.page = page;

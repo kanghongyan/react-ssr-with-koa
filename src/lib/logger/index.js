@@ -1,20 +1,22 @@
-let logger = null;
-
-const init = (loggerIns) => {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+var _logger = null;
+var init = function (loggerIns) {
     if (loggerIns) {
-        logger = loggerIns;
-    } else {
-        logger = require('./defaultLogger');
+        _logger = loggerIns;
+    }
+    else {
+        _logger = require('./defaultLogger').logger;
     }
 };
-
-module.exports = {
+var logger = {
     init: init,
-    info: (msg) => {
-        logger && logger.info && logger.info(msg)
+    info: function (msg) {
+        _logger && _logger.info && _logger.info(msg);
     },
-    error: (msg) => {
-        logger && logger.error && logger.error(msg)
+    error: function (msg) {
+        _logger && _logger.error && _logger.error(msg);
     },
-    logger: logger
 };
+exports.logger = logger;
+//# sourceMappingURL=index.js.map

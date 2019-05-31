@@ -1,4 +1,10 @@
 "use strict";
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
@@ -34,28 +40,47 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var _this = this;
 Object.defineProperty(exports, "__esModule", { value: true });
-var logger_1 = require("../logger");
-var getInitialData = function (Component, ctx) { return __awaiter(_this, void 0, void 0, function () {
-    var MainApp, props;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
-            case 0:
-                MainApp = Component.App;
-                if (!MainApp)
-                    return [2 /*return*/, {}];
-                if (!MainApp.getInitialProps)
-                    return [2 /*return*/, {}];
-                return [4 /*yield*/, MainApp.getInitialProps(ctx)
-                        .catch(function (e) {
-                        logger_1.logger.error(e.stack);
-                    })];
-            case 1:
-                props = _a.sent();
-                return [2 /*return*/, props];
-        }
-    });
-}); };
-exports.getInitialData = getInitialData;
-//# sourceMappingURL=getInitialData.js.map
+var decorater_1 = require("./decorater");
+var Html = require("../lib/html");
+var pagesMap = require('../../def').pagesMap;
+var METHOD;
+(function (METHOD) {
+    METHOD["GET"] = "get";
+    METHOD["POST"] = "post";
+})(METHOD || (METHOD = {}));
+var PageController = /** @class */ (function () {
+    function PageController(page) {
+        this.page = page;
+    }
+    PageController.prototype.render = function (ctx) {
+        return __awaiter(this, void 0, void 0, function () {
+            var htmlObj;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        htmlObj = new Html(ctx, this.page)
+                            .init({
+                            ssr: true,
+                        });
+                        return [4 /*yield*/, htmlObj.render().catch(function (e) {
+                                console.log(e);
+                                console.log('page get file error');
+                            })];
+                    case 1:
+                        _a.sent();
+                        return [2 /*return*/];
+                }
+            });
+        });
+    };
+    __decorate([
+        decorater_1.Request({ url: '*', method: METHOD.GET })
+    ], PageController.prototype, "render", null);
+    PageController = __decorate([
+        decorater_1.RouterUse(Object.keys(pagesMap).map(function (p) { return "/" + p; }))
+    ], PageController);
+    return PageController;
+}());
+exports.PageController = PageController;
+//# sourceMappingURL=PageController.js.map

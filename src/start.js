@@ -35,27 +35,50 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 var _this = this;
-Object.defineProperty(exports, "__esModule", { value: true });
-var logger_1 = require("../logger");
-var getInitialData = function (Component, ctx) { return __awaiter(_this, void 0, void 0, function () {
-    var MainApp, props;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
-            case 0:
-                MainApp = Component.App;
-                if (!MainApp)
-                    return [2 /*return*/, {}];
-                if (!MainApp.getInitialProps)
-                    return [2 /*return*/, {}];
-                return [4 /*yield*/, MainApp.getInitialProps(ctx)
-                        .catch(function (e) {
-                        logger_1.logger.error(e.stack);
-                    })];
-            case 1:
-                props = _a.sent();
-                return [2 /*return*/, props];
-        }
+exports.__esModule = true;
+require("ignore-styles"); // 不处理require('xx.scss')这种文件 https://www.npmjs.com/package/ignore-styles
+// import 'babel-polyfill';
+// client和server端通用的fetch
+require("isomorphic-unfetch");
+var Loadable = require("react-loadable");
+var bodyParser = require("koa-bodyparser");
+var router = require("./router");
+var window_1 = require("./fakeObject/window");
+// 兼容处理：为global添加window相关对象
+global.window = window_1.window;
+global.document = window_1.window.document;
+global.navigator = window_1.window.navigator;
+// preLoad all react modules for react-loadable
+var preLoadComp_1 = require("./util/preLoadComp");
+preLoadComp_1.preLoadComp();
+var start = function (app, _a) {
+    var _b = _a.useDefaultProxy, useDefaultProxy = _b === void 0 ? false : _b, _c = _a.useDefaultSSR, useDefaultSSR = _c === void 0 ? false : _c;
+    return __awaiter(_this, void 0, void 0, function () {
+        return __generator(this, function (_d) {
+            switch (_d.label) {
+                case 0: return [4 /*yield*/, Loadable.preloadAll()];
+                case 1:
+                    _d.sent();
+                    if (!app)
+                        return [2 /*return*/];
+                    if (useDefaultProxy) {
+                        // bodyParser
+                        app.use(bodyParser());
+                        app.use(function (ctx, next) {
+                            // 开启了bodyparser
+                            // 约定，向req中注入_body for "proxyToServer"
+                            ctx.req._body = ctx.request.body;
+                            return next();
+                        });
+                    }
+                    if (useDefaultSSR) {
+                        // page
+                        app.use(router.page.routes());
+                        app.use(router.page.allowedMethods());
+                    }
+                    return [2 /*return*/];
+            }
+        });
     });
-}); };
-exports.getInitialData = getInitialData;
-//# sourceMappingURL=getInitialData.js.map
+};
+exports.start = start;

@@ -34,28 +34,49 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var _this = this;
-Object.defineProperty(exports, "__esModule", { value: true });
-var logger_1 = require("../logger");
-var getInitialData = function (Component, ctx) { return __awaiter(_this, void 0, void 0, function () {
-    var MainApp, props;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
-            case 0:
-                MainApp = Component.App;
-                if (!MainApp)
-                    return [2 /*return*/, {}];
-                if (!MainApp.getInitialProps)
-                    return [2 /*return*/, {}];
-                return [4 /*yield*/, MainApp.getInitialProps(ctx)
-                        .catch(function (e) {
-                        logger_1.logger.error(e.stack);
-                    })];
-            case 1:
-                props = _a.sent();
-                return [2 /*return*/, props];
+exports.__esModule = true;
+var Router = require("koa-router");
+var router = new Router();
+// 方法装饰器
+function Request(_a) {
+    var url = _a.url, method = _a.method;
+    return function (target, propertyKey, descriptor) {
+        var _this = this;
+        var fn = descriptor.value;
+        descriptor.value = function (router) {
+            router[method](url, function (ctx, next) { return __awaiter(_this, void 0, void 0, function () {
+                return __generator(this, function (_a) {
+                    switch (_a.label) {
+                        case 0: return [4 /*yield*/, fn(ctx, next)];
+                        case 1:
+                            _a.sent();
+                            return [2 /*return*/];
+                    }
+                });
+            }); });
+        };
+    };
+}
+exports.Request = Request;
+// 类装饰器
+function RouterUse(path) {
+    var _router = new Router();
+    return function (target) {
+        var reqList = Object.getOwnPropertyDescriptors(target);
+        for (var v in reqList) {
+            if (v !== 'constructor' && typeof v === 'function') {
+                var fn = reqList[v].value;
+                fn(_router);
+            }
         }
-    });
-}); };
-exports.getInitialData = getInitialData;
-//# sourceMappingURL=getInitialData.js.map
+        router.use(path, _router.routes());
+        router.use(_router.allowedMethods());
+    };
+}
+exports.RouterUse = RouterUse;
+function initPageCtrl() {
+    // todo: 先写死
+    require('./PageController');
+    return router;
+}
+exports.initPageCtrl = initPageCtrl;
