@@ -2,10 +2,10 @@
 
 import * as Koa from "koa";
 
-declare namespace ReactSSRWithKoa {
+declare module ReactSSRWithKoa {
     function start(app: Koa, option: {useDefaultProxy: boolean, useDefaultSSR: boolean}): Promise<void>;
 
-    function proxyToServer(): Promise<any>;
+    function proxyToServer(ctx: Koa.Context, option: object): Promise<any>;
 
     namespace logger {
         function init(ins: {info: () => {}, error: () => {}}): void;
@@ -14,13 +14,20 @@ declare namespace ReactSSRWithKoa {
     }
 
     class Html {
-        constructor(ctx: Koa.Context, page: string)  //构造函数
+        new (ctx: Koa.Context, page: string): Html
         init(option: {ssr?: boolean}): Html
         injectInitialData(data: {dataProps: object, routeProps: object}): Html
         render(customData?: object): Promise<void>
     }
+}
 
-    function WrapperForContainer(): any;
+declare module 'react-ssr-with-koa/WrapperForContainer' {
+    function WrapperForContainer(option: {
+        name: string,
+        type: string
+    }): () => {};
+
+    export = WrapperForContainer
 }
 
 

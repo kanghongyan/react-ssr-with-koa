@@ -3,17 +3,9 @@ import * as url from 'url'
 import { logger } from '../logger'
 
 
-const enhanceApp = ({
-                        initialData,
-                        ...routeProps
-                    }) => {
-    return (Component) => {
+const enhanceApp = (routeProps) => {
 
-        // 将initialData注入到App中
-        if (Component.App) {
-            Component.App.defaultProps = {};
-            Component.App.defaultProps['initialData'] = initialData;
-        }
+    return (Component) => {
 
         try {
             routeProps.location = url.parse(routeProps.location).path;

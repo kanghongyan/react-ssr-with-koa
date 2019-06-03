@@ -4,7 +4,7 @@ import * as Loadable from 'react-loadable'
 import * as koa from 'koa'
 
 import { getSSREntryForPage } from './getSSREntryForPage'
-import { getInitialData } from './getInitialData'
+import { getInitialData } from './parseApp'
 import { enhanceApp } from './enhanceApp'
 import { matchRoutes, getRouteInitialData } from './parseRoute';
 import { getTpl } from './getTplForPage'
@@ -151,7 +151,6 @@ class Html {
         }
 
         this.app = enhanceApp({
-            initialData: this.initialData.pageProps,
             basename: this.page,
             location: this.req.url,
             context: this.routerContext,
@@ -274,7 +273,7 @@ class Html {
 
 
     /**
-     * 包装App，获取初始数据
+     * 获取初始数据
      * @return {Promise<*>}
      * @private
      */
@@ -298,41 +297,7 @@ class Html {
             }
         );
 
-
-
         return next
-
-        /*
-        // getInitialStore
-        App.getInitialStore && await App.getInitialStore(this.ctx);
-
-        // get InitialData from <App/>
-        this.initialData.pageProps = Object.keys(this.initialData.pageProps).length ? this.initialData.pageProps : await getInitialData(App, this.ctx);
-        this.__PRELOADED_STATE__.pageProps = this.initialData.pageProps;
-
-        // get InitialData from route Component
-        const routeConfig = App.routeConfig ? App.routeConfig : null;
-        if (routeConfig) {
-            const pathname = this.ctx.request.path.replace(`/${this.page}`, '');
-            const matchedRoute = matchRoutes(routeConfig, pathname);
-            this.initialData.routeProps = await getRouteInitialData(this.ctx, matchedRoute, this.initialData.routeProps);
-            this.__PRELOADED_STATE__.routeProps = this.initialData.routeProps;
-        }
-
-        // get InitialData from store
-        if (this.ctx.reduxStore && this.ctx.reduxStore.getState) {
-            this.__PRELOADED_STATE__.store = this.ctx.reduxStore.getState();
-        }
-
-        const EnhancedApp = enhanceApp({
-            initialData: this.initialData.pageProps,
-            basename: this.page,
-            location: this.req.url,
-            context: this.routerContext,
-            store: this.ctx.reduxStore
-        })(App);
-        // const EnhancedApp = App;*/
-
     }
 
     /**

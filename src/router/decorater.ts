@@ -35,20 +35,17 @@ function Request({url, method}: ReqParam) {
         const fn = descriptor.value;
         descriptor.value = function _Request (_router) {
             _router[method](url, async (ctx, next) => {
-                console.log('request')
                 await fn(ctx, next)
             })
-        }
+        };
 
-        // return descriptor
+        return descriptor
     }
 }
 
 // 类装饰器
 function RouterUse(path: string[]) {
-    let _router = new Router();
     return function (target: any) {
-
 
         const routeFun = () => {
             let _router = new Router();
@@ -67,15 +64,6 @@ function RouterUse(path: string[]) {
         path.forEach((_p) => {
             router.use(_p, routeFun().routes());
         });
-
-        // router.use('/index', _router.routes());
-        router.use('/index|account', _router.routes());
-        router.use('/ee', async () => {
-            console.log('ff')
-        });
-
-
-        // router.use(_router.allowedMethods());
 
     }
 }

@@ -10,11 +10,22 @@ function getTplByPage(name: string): string {
 }
 
 function getManifest(): any {
-    return require(path.resolve(`build/asset-manifest.json`))
+    try {
+        return require(path.resolve(`build/asset-manifest.json`))
+    } catch (e) {
+        console.log(e);
+        return {}
+    }
+
 }
 
 function getBundleAssets(): any {
-    return require(path.resolve(`build/react-loadable.json`))
+    try {
+        return require(path.resolve(`build/react-loadable.json`))
+    } catch (e) {
+        return {}
+    }
+
 }
 
 function getSSRConfig(): {

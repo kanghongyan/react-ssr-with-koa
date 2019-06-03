@@ -6,7 +6,7 @@ class Missing extends React.Component<{}, {}> {
     static routeConfig = null;
 
     render() {
-        return <span/>
+        return null
     }
 }
 

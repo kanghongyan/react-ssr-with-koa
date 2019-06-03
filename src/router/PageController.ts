@@ -31,8 +31,6 @@ class PageController {
             console.log('page get file error')
         });
 
-        console.log(ctx.status);
-
         return
     }
 }

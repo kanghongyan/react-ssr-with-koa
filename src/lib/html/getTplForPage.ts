@@ -1,7 +1,7 @@
 import * as ejs from 'ejs';
 import * as fs from 'fs';
 
-const getTplByPage = require('../../context').getTplByPage;
+import { getTplByPage } from '../../context'
 const flexibleStr = fs.readFileSync('node_modules/lm-flexible/build/changeRem-min.js', 'utf-8');
 
 const getTpl = (ctx, page, stringMarkup, preloadState, options) => {

@@ -37,7 +37,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 var _this = this;
 Object.defineProperty(exports, "__esModule", { value: true });
 var logger_1 = require("../logger");
-var getInitialData = function (Component, ctx) { return __awaiter(_this, void 0, void 0, function () {
+var parseApp = function (Component, ctx) { return __awaiter(_this, void 0, void 0, function () {
     var MainApp, props;
     return __generator(this, function (_a) {
         switch (_a.label) {
@@ -57,5 +57,5 @@ var getInitialData = function (Component, ctx) { return __awaiter(_this, void 0,
         }
     });
 }); };
-exports.getInitialData = getInitialData;
+exports.getInitialData = parseApp;
 //# sourceMappingURL=getInitialData.js.map

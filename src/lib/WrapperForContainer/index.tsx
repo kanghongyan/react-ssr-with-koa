@@ -8,6 +8,8 @@ const ROUTE_DATA_KEY = 'routeProps';
 const PAGE_TYPE = 'app';
 const ROUTE_TYPE = 'route';
 
+type ContainerType = 'app' | 'route'
+
 // todo: window as any的写法不可取
 const _isClient = () => {
     return typeof window === 'object' && !!(window as any).__PRELOADED_STATE__
@@ -73,21 +75,20 @@ const _deleteClientData = (type, name) => {
  */
 
 interface P {
-    initialData: object
+    initialData: any
 }
 
-const Wrapper = (option) => {
+const Wrapper = (option: {type: ContainerType, name: string}) => {
 
     return (Comp) => {
 
-        const compType = option.type || 'app';
-        const routeName = option.name || Comp.displayName || Comp.name;
-
+        const compType: string = option.type || PAGE_TYPE;
+        const routeName: string = option.name || Comp.displayName || Comp.name;
 
         class Container extends React.Component<P> {
             isClient: boolean;
             state: {
-                initialData: object
+                initialData: any
             };
 
             static defautProps = {
@@ -95,7 +96,7 @@ const Wrapper = (option) => {
             }
 
             static propTypes = {
-                initialData: PropTypes.object
+                initialData: PropTypes.any
             }
 
 

@@ -7,12 +7,16 @@ const getInitialData = async (Component, ctx) => {
     if (!MainApp) return {};
     if (!MainApp.getInitialProps) return {};
 
-    const props = await MainApp.getInitialProps(ctx)
+    const initialData = await MainApp.getInitialProps(ctx)
         .catch((e) => {
             logger.error(e.stack)
         });
 
-    return props
+    // 将initialData注入到App中
+    MainApp.defaultProps = {};
+    MainApp.defaultProps['initialData'] = initialData;
+
+    return initialData
 };
 
 export {
