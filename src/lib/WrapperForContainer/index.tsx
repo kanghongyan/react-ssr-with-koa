@@ -10,33 +10,32 @@ const ROUTE_TYPE = 'route';
 
 type ContainerType = 'app' | 'route'
 
-// todo: window as any的写法不可取
 const _isClient = () => {
-    return typeof window === 'object' && !!(window as any).__PRELOADED_STATE__
+    return typeof window === 'object' && !!window.__PRELOADED_STATE__
 };
 
 const _getClientData = (type, name) => {
     if (type === PAGE_TYPE) {
         if (window &&
-            (window as any).__PRELOADED_STATE__
+            window.__PRELOADED_STATE__
         ) {
-            return (window as any).__PRELOADED_STATE__[PAGE_DATA_KEY]
+            return window.__PRELOADED_STATE__[PAGE_DATA_KEY]
         }
     }
     if (type === ROUTE_TYPE) {
         if (window &&
-            (window as any).__PRELOADED_STATE__ &&
-            (window as any).__PRELOADED_STATE__[ROUTE_DATA_KEY]
+            window.__PRELOADED_STATE__ &&
+            window.__PRELOADED_STATE__[ROUTE_DATA_KEY]
         ) {
-            return (window as any).__PRELOADED_STATE__[ROUTE_DATA_KEY][name]
+            return window.__PRELOADED_STATE__[ROUTE_DATA_KEY][name]
         }
     }
 };
 
 const _deleteClientData = (type, name) => {
-    if (window && (window as any).__PRELOADED_STATE__) {
-        type === PAGE_TYPE && delete (window as any).__PRELOADED_STATE__[PAGE_DATA_KEY];
-        type === ROUTE_TYPE && delete (window as any).__PRELOADED_STATE__[ROUTE_DATA_KEY][name];
+    if (window && window.__PRELOADED_STATE__) {
+        type === PAGE_TYPE && delete window.__PRELOADED_STATE__[PAGE_DATA_KEY];
+        type === ROUTE_TYPE && delete window.__PRELOADED_STATE__[ROUTE_DATA_KEY][name];
     }
 };
 

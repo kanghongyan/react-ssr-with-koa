@@ -30,6 +30,12 @@ declare module 'react-ssr-with-koa/WrapperForContainer' {
     export = WrapperForContainer
 }
 
+declare module 'react-ssr-with-koa/getStoreInitData' {
+    function getStoreInitData(): object;
+
+    export = getStoreInitData
+}
+
 
 export = ReactSSRWithKoa
 

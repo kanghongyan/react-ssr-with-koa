@@ -250,7 +250,12 @@ class Html {
      */
     _initStore(cb?) {
         return async () => {
-            this.app.getInitialStore && await this.app.getInitialStore(this.ctx);
+            try {
+                this.app.getInitialStore && await this.app.getInitialStore(this.ctx);
+            } catch (e) {
+                logger.error(e.stack)
+            }
+
             cb && cb()
         }
     }

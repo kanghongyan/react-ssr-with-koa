@@ -8,3 +8,6 @@ declare module NodeJS  {
         navigator: any
     }
 }
+interface Window {
+    __PRELOADED_STATE__: any
+}
