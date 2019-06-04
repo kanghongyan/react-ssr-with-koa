@@ -1,11 +1,12 @@
 {
   "name": "react-ssr-with-koa",
-  "version": "1.0.0-alpha.2.0.3",
+  "version": "1.0.0-alpha.2.0.4",
   "description": "react ssr with koa",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc -p tsconfig.build.json",
-    "prepublish": "npm run build"
+    "clean": "del dist/*",
+    "prepublish": "npm run clean && npm run build"
   },
   "files": [
     "dist",
