@@ -35,7 +35,13 @@ const _getClientData = (type, name) => {
 const _deleteClientData = (type, name) => {
     if (window && window.__PRELOADED_STATE__) {
         type === PAGE_TYPE && delete window.__PRELOADED_STATE__[PAGE_DATA_KEY];
-        type === ROUTE_TYPE && delete window.__PRELOADED_STATE__[ROUTE_DATA_KEY][name];
+        if (type === ROUTE_TYPE) {
+            delete window.__PRELOADED_STATE__[ROUTE_DATA_KEY][name];
+            if (Object.keys(window.__PRELOADED_STATE__[ROUTE_DATA_KEY]).length === 0) {
+                delete window.__PRELOADED_STATE__[ROUTE_DATA_KEY]
+            }
+        }
+
     }
 };
 
