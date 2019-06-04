@@ -65,29 +65,8 @@ const getRouteInitialData = async (ctx, matchedRoute, defaultInitialData) => {
     let finalData = {};
     let isStop = false;
 
-    // 已经传入初始数据
-    if (defaultInitialData && Object.keys(defaultInitialData).length) {
-        const promise = matchedRoute.map(async ({ route, match }) => {
-            return  await getRouteComp(route.component);
-        });
-        const routeComp = await Promise.all(promise);
 
-        routeComp.forEach((comp: any) => {
-            const compName = comp.displayName || comp.name;
-            const data = defaultInitialData[compName];
-
-            if (data) {
-                comp.defaultProps = {};
-                comp.defaultProps['initialData'] = data;
-                finalData[compName] = data
-            }
-        });
-
-        return finalData
-    }
-
-
-    // 无初始数据，尝试从组件下getInitialProps中拿
+    // 获取初始数据。getInitialProps优先级大于injectInitialData
     const promises = matchedRoute.map(async ({ route, match }) => {
 
         if (isStop) {
@@ -95,11 +74,12 @@ const getRouteInitialData = async (ctx, matchedRoute, defaultInitialData) => {
         }
 
         const comp = await getRouteComp(route.component);
+        const compName = comp.displayName || comp.name;
         _tempRouteComp.push(comp);
 
         const initialData = comp.getInitialProps
             ? comp.getInitialProps(ctx, match)
-            : Promise.resolve(null);
+            : Promise.resolve(defaultInitialData[compName]);
 
         if (`${ctx.status}` !== `404`) {
             isStop = true
@@ -122,7 +102,7 @@ const getRouteInitialData = async (ctx, matchedRoute, defaultInitialData) => {
     }, finalData);
 
     return finalData
-}
+};
 
 
 export {

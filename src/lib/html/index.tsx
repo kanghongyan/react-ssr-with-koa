@@ -50,9 +50,9 @@ const ReactDomRenderMethod = (() => {
  */
 class Html {
 
-    page: string;
-    req: koa.Request;
-    ctx: koa.Context;
+    readonly page: string;
+    readonly req: koa.Request;
+    readonly ctx: koa.Context;
     option: {
         ssr?: boolean
     };
@@ -121,7 +121,16 @@ class Html {
         return this
     }
 
-
+    /**
+     * 向页面注入数据。可选
+     * {
+     *     pageProps: appComp的数据
+     *     routeProps: {
+     *         [routeCompName]: [routeCompInitialData]
+     *     }
+     * }
+     * @param data
+     */
     injectInitialData(data) {
         if (!this.option.ssr) return this;
 
@@ -132,6 +141,10 @@ class Html {
     }
 
 
+    /**
+     * 渲染方法。生成html
+     * @param customData
+     */
     async render(customData = {}) {
 
         const ctx = this.ctx;
@@ -249,7 +262,7 @@ class Html {
      */
     _initAppData(cb?) {
         return async () => {
-            this.initialData.pageProps = Object.keys(this.initialData.pageProps).length ? this.initialData.pageProps : await getInitialData(this.app, this.ctx)
+            this.initialData.pageProps = await getInitialData(this.app, this.ctx, this.initialData.pageProps);
             cb && cb(this.initialData.pageProps)
         }
     }
@@ -266,7 +279,7 @@ class Html {
                 const pathname = this.ctx.request.path.replace(`/${this.page}`, '');
                 const matchedRoute = matchRoutes(routeConfig, pathname);
                 this.initialData.routeProps = await getRouteInitialData(this.ctx, matchedRoute, this.initialData.routeProps);
-                cb(this.initialData.routeProps)
+                cb && cb(this.initialData.routeProps)
             }
         }
     }
@@ -306,7 +319,7 @@ class Html {
      * @return {*}
      * @private
      */
-    __getPageMarkup() {
+    __getPageMarkup(): string {
 
         const App = this.app;
 
