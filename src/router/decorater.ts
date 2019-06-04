@@ -8,7 +8,7 @@ interface ReqParam {
 
 function BindThis(target: any, propertyKey: string, descriptor: PropertyDescriptor) {
     const fn = descriptor.value;
-    descriptor.value = async (...args) => {
+    descriptor.value = async function _BindThis (...args) {
         await fn.apply(target, args)
     };
     return descriptor
@@ -16,8 +16,7 @@ function BindThis(target: any, propertyKey: string, descriptor: PropertyDescript
 
 function FindPage(target: any, propertyKey: string, descriptor: PropertyDescriptor) {
     const fn = descriptor.value;
-    // target.page = 'account';
-    descriptor.value =  async (_router) => {
+    descriptor.value =  async function _FindPage (_router) {
         const matchedRoute = _router._matchedRoute.match(/^\/([^\/]+)/);
         target.page = matchedRoute ? matchedRoute[1] : '';
 
@@ -69,7 +68,6 @@ function RouterUse(path: string[]) {
 }
 
 function initPageCtrl() {
-    debugger
     // todo: 先写死
     require('./PageController');
     return router
