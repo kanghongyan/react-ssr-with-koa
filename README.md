@@ -7,73 +7,40 @@
 * 使用earth-scripts@2.x (beta) 打包工具
 
 
-## template
+## Html
 
-[ejs语法](https://ejs.co/)模版文件夹，每个page对应一个html
+#### 与koa配合
+
+使用start方法，在server端预先加载好异步组件。
+
+start(app, option)，如果option内配置为true，则在app上挂载一些中间件，详见以下说明
 
 
 说明：
 
-| 参数 | 类型 | 说明 | 默认值 |
+| option | 类型 | 说明 | 默认值 |
 | ------ | ------ | ------ | ------ | 
-| stringMarkup | string | ssr时，React.renderToString()后的结果 | '' |
-| preloadState | string | ssr时，window上挂载的数据  | '' |
-| css | string | 页面需要引用的css |  |
-| js | string | 页面需要引用的js |  |
-| flexibleStr | string | 
+| useDefaultProxy | bool | 使用自带的接口代理工具。为true时，在app上挂载body-parser中间件 | false |
+| useDefaultSSR | bool | 为true时，在app上挂载/pageName路由，并对page下的所有页面开启ssr，访问地址 host:port/pageName。 | false |
 
-注：这几个参数使用*<%-*语法，不需要转译
 
+使用方式：
+```
+const { start } = require('react-ssr-with-koa');
+const Koa = require('koa');
+
+const app = new Koa();
+
+start(app, {useDefaultProxy: true, useDefaultSSR: true})
+    .then(() => {
+       // custom server
+    })
 
 ```
 
-// page1.js
+#### config/ssr.js
 
-<!doctype html>
-<html lang="zh-CN">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,shrink-to-fit=no,user-scalable=0, viewport-fit=cover">
-    <meta name="theme-color" content="#000000">
-    <meta content="yes" name="apple-mobile-web-app-capable"/>
-    <meta content="black" name="apple-mobile-web-app-status-bar-style"/>
-    <meta name="format-detection" content="telephone=no"/>
-    <title>收银台服务及业务委托协议</title>
-    <script>
-        window.PointerEvent = void 0
-    </script>
-    <script>
-        <%- flexibleStr %>
-    </script>
-    <%- css %>
-    <%- preloadState %>
-</head>
-<body>
-<div id="root"><%- stringMarkup %></div>
-<%- js %>
-</body>
-</html>
-
-```
-
-通过在ssr render()方法中传递对象，可以在模版中注入自定义数据
-
-```
-ssr方法：
-
-ssrObject.render({myData: 12333})
-
-
-template：
-
-<% myData %>
-
-```
-
-
-## config/ssr.js
-
-ssr入口文件，仅打包react代码。由earth-scripts读取，并编译打包到build/server下
+server端react入口文件配置，仅打包react代码。由earth-scripts读取，并编译打包到build/server下
 
 ```
 例如：入口文件名为indexSSR
@@ -88,6 +55,8 @@ module.exports = {
 ```
 
 #### indexSSR 
+
+server端react入口
 
 ```
 import React, { Component } from 'react'
@@ -161,11 +130,51 @@ export default AppSSR
 
 ```
 
-### dist/WrapperForContainer
+#### Html
+
+ssr核心方法。获取初始数据、生成html
+
+```
+
+    const { Html } = require('react-ssr-with-koa');
+
+
+    // koa router
+    router.get("/index*", async (ctx, next) => {
+
+        const PAGE = 'index';
+
+        const htmlObj = new Html(ctx, PAGE)
+            .init({
+                ssr: true,
+            })
+            // 如果不在这里传入initialData
+            // 可在组件static getInitialProps()方法里直接return数据
+            // 优先使用getInitialProps方法获取数据
+            // 使用redux情况下，需要在indexSSR组件中获取数据，见示例
+            // .injectInitialData({
+                // pageProps: 'fffff',    // 根组件(App)下的数据
+                // routeProps: {     // 路由组件下的数据
+                //     siteDetail: {
+                //         serverData: 'my inject data'
+                //     }
+                // }
+            // })
+
+        await htmlObj.render().catch((e) => {
+                logger.error(e);
+            }
+        );
+    });
+```
+
+
+
+## WrapperForContainer
 
 高阶组件。包装需要获取数据的container组件，提供在server和client端通用的获取数据的方法。被包装的组件初始数据可以从props.initialData上拿到,不需要手动从window上拿。
 
-WrapperForContainer({name: xx, type: xx}})(Container)
+WrapperForContainer({name: string, type: string}})(Container)
 
 说明：
 
@@ -182,6 +191,7 @@ getInitialProps方法仅在server端执行。
 使用方式：
 
 ```
+import { Wrapper } from 'react-ssr-with-koa'
 // #if process.env.IS_SERVER === true
 import only-server-used-modules from 'only-server-used-modules'
 // #endif
@@ -207,70 +217,84 @@ export default Wrapper({name: 'My', type: 'route'})(My)
 
 ```
 
-### server side
 
-#### server端入口文件
+## template/page.html
 
-server入口方法
+[ejs语法](https://ejs.co/)模版文件夹，每个page对应一个html
+
 
 说明：
 
-| option | 类型 | 说明 | 默认值 |
+| 参数 | 类型 | 说明 | 默认值 |
 | ------ | ------ | ------ | ------ | 
-| useDefaultProxy | bool | 使用自带的接口代理工具。为true时，在app上挂载body-parser中间件 | false |
-| useDefaultSSR | bool | 为true时，在app上挂载/pageName路由，并对page下的所有页面开启ssr，访问地址 host:port/pageName。 | false |
+| stringMarkup | string | ssr时，React.renderToString()后的结果 | '' |
+| preloadState | string | ssr时，window上挂载的数据  | '' |
+| css | string | 页面需要引用的css |  |
+| js | string | 页面需要引用的js |  |
+| flexibleStr | string | 
+
+注：这几个参数使用*<%-*语法，不需要转译
 
 
 ```
-const start = require('react-ssr-with-koa');
-const Koa = require('koa');
 
-const app = new Koa();
+// page1.js
 
-start(app, {useDefaultProxy: true, useDefaultSSR: true})
-    .then(() => {
-       // custom server
-    })
+<!doctype html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,shrink-to-fit=no,user-scalable=0, viewport-fit=cover">
+    <meta name="theme-color" content="#000000">
+    <meta content="yes" name="apple-mobile-web-app-capable"/>
+    <meta content="black" name="apple-mobile-web-app-status-bar-style"/>
+    <meta name="format-detection" content="telephone=no"/>
+    <title>收银台服务及业务委托协议</title>
+    <script>
+        window.PointerEvent = void 0
+    </script>
+    <script>
+        <%- flexibleStr %>
+    </script>
+    <%- css %>
+    <%- preloadState %>
+</head>
+<body>
+<div id="root"><%- stringMarkup %></div>
+<%- js %>
+</body>
+</html>
 
 ```
 
-#### dist/html
-
-ssr核心方法
+通过在ssr render()方法中传递对象，可以在模版中注入自定义数据
 
 ```
-    // koa router
-    router.get("/index*", async (ctx, next) => {
+ssr方法：
 
-        const PAGE = 'index';
+ssrObject.render({myData: 12333})
 
-        const htmlObj = new html(ctx, PAGE)
-            .init({
-                ssr: true,
-            })
-            // 如果不在这里传入initialData
-            // 可在组件static getInitialProps()方法里直接return数据
-            // 每种数据的获取方式只能选择其中一种方式，不能混用
-            // 使用redux情况下，需要在indexSSR组件中获取数据，见示例
-            // .injectInitialData({
-                // pageProps: 'fffff',    // 根组件(App)下的数据
-                // routeProps: {     // 路由组件下的数据
-                //     siteDetail: {
-                //         serverData: 'my inject data'
-                //     }
-                // }
-            // })
 
-        await htmlObj.render().catch((e) => {
-                logger.error(e);
-            }
-        );
-    });
+template：
+
+<% myData %>
+
 ```
 
-#### dist/logger
+#### logger
 
 工具方法（可选）：打日志。可以自定义logger
+
+
+日志路径：
+
+development： rootProject/log/
+
+production: /opt/nodejslog
+
+日志文件名：
+
+app.log.info-2019-01-01  app.log.error-2019-01-01
 
 ```
 // 自定义logger必须实现info和error方法
@@ -278,30 +302,32 @@ const myLogger = {
     info: () => {},
     error: () => {}
 }
-const logger = require('react-ssr-with-koa/dist/logger');
+const { logger } = require('react-ssr-with-koa');
 // 参数为空，则使用默认logger
 logger.init(myLogger)
 
-app.use(xxxxx)
+// 使用
+logger.info('my data');
+logger.error('error')
 ```
 
-#### dist/proxyToServer
+#### proxyToServer
 
 工具方法（可选）：接口代理
 
 
 ```
 
-router.all('/:channel/:other*', async (ctx, next) => {
+const { proxyToServer } = require('react-ssr-with-koa');
 
-    const appProxy = new Proxy2Server(ctx.req, ctx.res);
+router.all('/:channel/:other*', async (ctx, next) => {
 
     const proxyOption = {
         selfHandleResponse: true, // 处理java 500
         target: `${proxyHost}/${ctx.url}`,
     };
 
-    await appProxy.asyncTo(proxyOption, ctx)
+    await proxyToServer(ctx, proxyOption)
            .catch((e) => {
                 console.log(e)
             });;

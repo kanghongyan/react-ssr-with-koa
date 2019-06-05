@@ -1,3 +1,1 @@
-const { Wrapper } = require('./dist/lib/WrapperForContainer');
-
-module.exports = Wrapper;
+module.exports = require('./dist/lib/WrapperForContainer').Wrapper;

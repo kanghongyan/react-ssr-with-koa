@@ -1,3 +1,1 @@
-const { getStoreInitData } = require('./dist/lib/getStoreInitData');
-
-module.exports = getStoreInitData;
+module.exports = require('./dist/lib/getStoreInitData').getStoreInitData;
