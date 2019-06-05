@@ -1,6 +1,6 @@
 {
   "name": "react-ssr-with-koa",
-  "version": "1.0.0-alpha.2.0.5",
+  "version": "1.0.0-alpha.2.0.6",
   "description": "react ssr with koa",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -11,7 +11,9 @@
   "files": [
     "dist",
     "index.js",
-    "index.d.ts"
+    "index.d.ts",
+    "WrapperForContainer.js",
+    "getStoreInitData.js"
   ],
   "peerDependencies": {
     "react": ">=16.4.0",
