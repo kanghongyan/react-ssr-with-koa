@@ -14,7 +14,7 @@ function getManifest(): any {
         return require(path.resolve(`build/asset-manifest.json`))
     } catch (e) {
         console.log(e);
-        return {}
+        return null
     }
 
 }
@@ -23,7 +23,8 @@ function getBundleAssets(): any {
     try {
         return require(path.resolve(`build/react-loadable.json`))
     } catch (e) {
-        return {}
+        console.log(e);
+        return null
     }
 
 }

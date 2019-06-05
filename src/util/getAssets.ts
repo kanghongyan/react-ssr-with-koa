@@ -6,6 +6,8 @@ const _getAsyncBundle = (modules, preLoc) => {
 
     let loadableJson = getBundleAssets();
 
+    if (!loadableJson) return [];
+
 
     let bundles = [];
 
