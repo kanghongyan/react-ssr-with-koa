@@ -4,8 +4,8 @@ import * as Loadable from 'react-loadable'
 import * as koa from 'koa'
 
 import { getSSREntryForPage } from './getSSREntryForPage'
-// 不存在pageProps了，后续删掉
-// import { getInitialData } from './parseApp'
+// TODO: 老项目兼容pageProps
+import { getInitialData } from './parseApp'
 import { enhanceApp } from './enhanceApp'
 import { matchRoutes, getRouteInitialData } from './parseRoute';
 import { getTpl } from './getTplForPage'
@@ -62,11 +62,11 @@ class Html {
     };
     modules: string[];
     initialData: {
-        // pageProps: object,
+        pageProps: object,
         routeProps: object
     };
     private __PRELOADED_STATE__: {
-        // pageProps: object,
+        pageProps: object,
         routeProps: object,
         store: object
     };
@@ -82,12 +82,12 @@ class Html {
         this.modules = [];
 
         this.initialData = {
-            // pageProps: {},
+            pageProps: {},
             routeProps: {},
         };
         // 保存初始数据
         this.__PRELOADED_STATE__ = {
-            // pageProps: {},
+            pageProps: {},
             routeProps: {},
             store: {}
         };
@@ -129,7 +129,7 @@ class Html {
     injectInitialData(data) {
         if (!this.option.ssr) return this;
 
-        // this.initialData.pageProps = data.pageProps || {};
+        this.initialData.pageProps = data.pageProps || {};
         this.initialData.routeProps = data.routeProps || {};
 
         return this
@@ -255,17 +255,17 @@ class Html {
         }
     }
 
-    // /**
-    //  * App.getInitialProps(ctx)
-    //  * @param cb
-    //  * @private
-    //  */
-    // _initAppData(cb?) {
-    //     return async () => {
-    //         this.initialData.pageProps = await getInitialData(this.app, this.ctx, this.initialData.pageProps);
-    //         cb && cb(this.initialData.pageProps)
-    //     }
-    // }
+    /**
+     * App.getInitialProps(ctx)
+     * @param cb
+     * @private
+     */
+    _initAppData(cb?) {
+        return async () => {
+            this.initialData.pageProps = await getInitialData(this.app, this.ctx, this.initialData.pageProps);
+            cb && cb(this.initialData.pageProps)
+        }
+    }
 
     /**
      * RouteContainer.getInitialProps(ctx, match)
@@ -296,9 +296,9 @@ class Html {
             return `${this.ctx.status}` === '404'
         })(
             this._initStore(),
-            // this._initAppData((data) => {
-            //     this.__PRELOADED_STATE__.pageProps = data;
-            // }),
+            this._initAppData((data) => {
+                this.__PRELOADED_STATE__.pageProps = data;
+            }),
             this._initRouteData((data) => {
                 this.__PRELOADED_STATE__.routeProps = data;
             }),
