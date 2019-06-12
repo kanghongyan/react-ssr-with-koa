@@ -87,7 +87,7 @@ const Wrapper = (option: {type: ContainerType, name: string}) => {
 
     return (Comp) => {
 
-        const compType: string = option.type || PAGE_TYPE;
+        const compType: string = option.type || ROUTE_TYPE;
         const routeName: string = option.name || Comp.displayName || Comp.name;
 
         class Container extends React.Component<P> {

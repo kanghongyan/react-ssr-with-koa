@@ -58,6 +58,8 @@ module.exports = {
 
 server端react入口
 
+routeConfig参见react-router-config使用方式
+
 ```
 import React, { Component } from 'react'
 import {createStore} from 'redux';
@@ -90,8 +92,6 @@ class AppSSR extends Component {
 
     // 可选。如果路由组件需要server端获取初始数据，需传入routeConfig。方便server端根据path拿到对应的路由组件
     static routeConfig = routeConfig;
-    // 必选。需要传入根App组件
-    static App = App
 
 
 
@@ -153,8 +153,7 @@ ssr核心方法。获取初始数据、生成html
             // 优先使用getInitialProps方法获取数据
             // 使用redux情况下，需要在indexSSR组件中获取数据，见示例
             // .injectInitialData({
-                // pageProps: 'fffff',    // 根组件(App)下的数据
-                // routeProps: {     // 路由组件下的数据
+                // routeProps: {     // routeConfig中配置的组件对应的数据
                 //     siteDetail: {
                 //         serverData: 'my inject data'
                 //     }
@@ -174,14 +173,13 @@ ssr核心方法。获取初始数据、生成html
 
 高阶组件。包装需要获取数据的container组件，提供在server和client端通用的获取数据的方法。被包装的组件初始数据可以从props.initialData上拿到,不需要手动从window上拿。
 
-WrapperForContainer({name: string, type: string}})(Container)
+WrapperForContainer({name: string}})(Container)
 
 说明：
 
 | option | 类型 | 说明 | 默认值 |
 | ------ | ------ | ------ | ------ | 
-| type | string | 路由组件or顶级App组件 | app |
-| name | string | type='route'时，路由组件的name，用于获取该组件对应的数据 | undefined |
+| name | string | 路由组件的name，用于获取该组件对应的数据 | undefined |
 
 getInitialProps方法仅在server端执行。
 
@@ -213,7 +211,7 @@ class My extends React.Component {
     }
 }
 
-export default Wrapper({name: 'My', type: 'route'})(My)
+export default Wrapper({name: 'My'})(My)
 
 ```
 

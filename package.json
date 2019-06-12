@@ -1,6 +1,6 @@
 {
   "name": "react-ssr-with-koa",
-  "version": "1.0.0-alpha.2.0.7",
+  "version": "1.0.0-alpha.2.0.8",
   "description": "react ssr with koa",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -20,7 +20,7 @@
     "react-dom": ">=16.4.0",
     "react-loadable": ">=5.5.0",
     "koa": ">=2.5.2",
-    "react-router-dom": ">=4.3.1"
+    "react-router-dom": ">=5.0.1"
   },
   "dependencies": {
     "babel-polyfill": "^6.26.0",
@@ -44,8 +44,8 @@
   "license": "ISC",
   "devDependencies": {
     "@types/ejs": "^2.6.3",
-    "@types/koa-bodyparser": "^4.3.0",
     "@types/jsdom": "^12.2.3",
+    "@types/koa-bodyparser": "^4.3.0",
     "@types/koa-router": "^7.0.40",
     "@types/lodash": "^4.14.132",
     "@types/node": "^12.0.2",
@@ -55,10 +55,10 @@
     "del": "^4.0.0",
     "fs-extra": "^7.0.1",
     "globby": "^9.1.0",
-    "react-loadable": "^5.5.0",
+    "koa": "2.5.2",
     "react": "16.4.0",
     "react-dom": "16.4.0",
-    "koa": "2.5.2",
-    "react-router-dom": "4.3.1"
+    "react-loadable": "^5.5.0",
+    "react-router-dom": "5.0.1"
   }
 }

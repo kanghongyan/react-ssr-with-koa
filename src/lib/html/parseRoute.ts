@@ -1,5 +1,4 @@
-// @ts-ignore
-import { matchPath } from 'react-router-dom'
+import { matchPath, Router } from 'react-router-dom'
 
 interface routeItem {
     component: any,
@@ -27,16 +26,14 @@ const getRouteComp = async (matchedRoute) => {
 };
 
 
+// copy from react-router-config matchRoutes
 function matchRoutes(routes: routeItem[], pathname: string, /*not public API*/ branch = []): matchedRoutes[] {
     routes.some(route => {
         const match = route.path
             ? matchPath(pathname, route)
             : branch.length
                 ? branch[branch.length - 1].match // use parent match
-                : {}; // use default "root" match
-
-        // todo: Router.computeRootMatch(pathname);
-        // todo: react-router v3 not support
+                : Router.computeRootMatch(pathname); // use default "root" match
 
         if (match) {
             branch.push({ route, match });
