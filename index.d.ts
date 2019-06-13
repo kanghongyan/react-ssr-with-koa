@@ -14,7 +14,7 @@ declare module ReactSSRWithKoa {
     }
 
     class Html {
-        new (ctx: Koa.Context, page: string): Html
+        constructor (ctx: Koa.Context, page: string)
         init(option: {ssr?: boolean}): Html
         injectInitialData(data: {dataProps: object, routeProps: object}): Html
         render(customData?: object): Promise<void>
