@@ -6,7 +6,7 @@ declare namespace Ns_MainExport {
     interface Html {
         new (ctx: Koa.Context, page: string)
         init(option: {ssr?: boolean}): Html
-        injectInitialData(data: {dataProps: object, routeProps: object}): Html
+        injectInitialData(data: {pageProps?: object, routeProps?: object}): Html
         render(customData?: object): Promise<void>
     }
 
