@@ -19,7 +19,7 @@ const _getAsyncBundle = (modules, preLoc) => {
 
     return bundles
         .filter((bundle) => {
-            return /\.js$/.test(bundle.file)
+            return bundle ? /\.js$/.test(bundle.file) : ''
         })
         .map((item) => item ? `${preLoc}${item.file}` : '')
 };

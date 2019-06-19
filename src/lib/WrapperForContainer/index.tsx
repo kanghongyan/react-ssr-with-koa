@@ -83,7 +83,7 @@ interface P {
     initialData: any
 }
 
-const Wrapper = (option: {type: ContainerType, name: string}) => {
+const Wrapper = (option: {type?: ContainerType, name: string}) => {
 
     return (Comp) => {
 
